@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffe600">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Legenda Afiliados</title>
+<style>
+  :root { --amarelo: #ffe600; --texto: #222; --cinza: #6b6b6b; --borda: #d9d9d9; --fundo: #f5f5f5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: var(--fundo); }
+  header { background: var(--amarelo); padding: 14px 16px; font-weight: 700; font-size: 18px; }
+  main { max-width: 560px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+  label { display: block; font-size: 13px; color: var(--cinza); margin-bottom: 4px; }
+  input, textarea { width: 100%; padding: 12px; font: inherit; border: 1px solid var(--borda); border-radius: 10px; background: #fff; }
+  textarea { min-height: 190px; resize: vertical; line-height: 1.4; }
+  button { font: inherit; font-weight: 600; padding: 13px 16px; border: 0; border-radius: 10px; background: var(--amarelo); color: var(--texto); cursor: pointer; }
+  button.sec { background: #fff; border: 1px solid var(--borda); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .linha { display: flex; gap: 8px; }
+  .linha > * { flex: 1; }
+  .linha > button { flex: 0 0 auto; }
+  .precos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #aviso { min-height: 20px; font-size: 14px; color: var(--cinza); }
+  #aviso.erro { color: #b3261e; }
+  #previa { width: 100%; max-height: 260px; object-fit: contain; background: #fff; border: 1px solid var(--borda); border-radius: 10px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>Legenda Afiliados · Mercado Livre</header>
+<main>
+  <div>
+    <label for="link">Link de afiliado</label>
+    <div class="linha">
+      <input id="link" type="url" inputmode="url" placeholder="https://meli.la/..." autocomplete="off">
+      <button id="gerar" type="button">Gerar</button>
+    </div>
+  </div>
+  <div id="blocoProduto" hidden>
+    <label for="produto">Link do produto (o link curto não abriu o produto)</label>
+    <input id="produto" type="url" inputmode="url" placeholder="https://www.mercadolivre.com.br/..." autocomplete="off">
+  </div>
+  <div id="aviso" role="status"></div>
+  <img id="previa" alt="Imagem do produto" hidden>
+  <div>
+    <label for="titulo">Título</label>
+    <input id="titulo" type="text" autocomplete="off">
+  </div>
+  <div class="precos">
+    <div><label for="preco">Preço atual</label><input id="preco" type="text" inputmode="decimal" placeholder="149,90" autocomplete="off"></div>
+    <div><label for="precoAntigo">Preço antigo</label><input id="precoAntigo" type="text" inputmode="decimal" placeholder="199,90" autocomplete="off"></div>
+  </div>
+  <div>
+    <label for="legenda">Legenda</label>
+    <textarea id="legenda"></textarea>
+  </div>
+  <div class="linha">
+    <button id="copiar" type="button">Copiar legenda</button>
+    <button id="modelo" type="button" class="sec">Outro modelo</button>
+  </div>
+  <button id="compartilhar" type="button" class="sec" disabled>Compartilhar imagem</button>
+</main>
+
+<script src="caption.js"></script>
+<script>
+var API_URL = 'https://script.google.com/macros/s/AKfycbzH4coDv1Xl1mFLOnETUP5jRLA93kGO4EpQ6z12aaEuFSqrTOl9HTPe9nd4vAWe9AjbCg/exec';
+var LS_TOKEN = 'afl_token';
+var LS_TPL = 'afl_tpl';
+var imagemUrl = null;
+
+function $(id) { return document.getElementById(id); }
+
+function lerLS(chave) { try { return localStorage.getItem(chave); } catch (e) { return null; } }
+function gravarLS(chave, valor) { try { localStorage.setItem(chave, valor); } catch (e) {} }
+function apagarLS(chave) { try { localStorage.removeItem(chave); } catch (e) {} }
+
+function aviso(msg, erro) {
+  $('aviso').textContent = msg || '';
+  $('aviso').className = erro ? 'erro' : '';
+}
+
+function pedirToken() {
+  var t = lerLS(LS_TOKEN);
+  if (!t) {
+    t = window.prompt('Token de acesso:');
+    if (t) gravarLS(LS_TOKEN, t.trim());
+  }
+  return t ? t.trim() : null;
+}
+
+async function api(params) {
+  var t = pedirToken();
+  if (!t) return { ok: false, erro: 'token' };
+  var qs = new URLSearchParams(Object.assign({ token: t }, params)).toString();
+  var resp = await fetch(API_URL + '?' + qs);
+  return resp.json();
+}
+
+function numeroParaCampo(n) {
+  return typeof n === 'number' && isFinite(n) ? n.toFixed(2).replace('.', ',') : '';
+}
+
+function indiceModelo() { return parseInt(lerLS(LS_TPL) || '0', 10) || 0; }
+
+// Primeira vez usa o modelo 0; depois avança um por vez (a cada geração e no botão "Outro modelo").
+function avancarModelo() {
+  var atual = lerLS(LS_TPL);
+  gravarLS(LS_TPL, String(atual === null ? 0 : (indiceModelo() + 1) % TEMPLATES.length));
+}
+
+function limparProduto() {
+  $('titulo').value = '';
+  $('preco').value = '';
+  $('precoAntigo').value = '';
+  imagemUrl = null;
+  $('previa').hidden = true;
+  $('previa').removeAttribute('src');
+  $('compartilhar').disabled = true;
+}
+
+function reiniciarBlocoProduto() {
+  $('blocoProduto').hidden = true;
+  $('produto').value = '';
+}
+
+function atualizarLegenda() {
+  var link = $('link').value.trim();
+  $('legenda').value = montarLegenda({
+    titulo: $('titulo').value.trim(),
+    preco: parseValor($('preco').value),
+    precoAntigo: parseValor($('precoAntigo').value),
+    link: link
+  }, indiceModelo());
+}
+
+function mostrarErro(r) {
+  if (r.erro === 'token') { apagarLS(LS_TOKEN); aviso('Token inválido. Tente de novo.', true); }
+  else if (r.erro === 'host') aviso('Cole um link do Mercado Livre.', true);
+  else if (r.erro === 'link_curto') {
+    $('blocoProduto').hidden = false;
+    aviso('Não achei o produto nesse link. Cole também o link do produto.', true);
+  } else aviso('Não consegui ler a página. Preencha os campos à mão.', true);
+}
+
+async function gerar() {
+  var link = $('link').value.trim();
+  if (!link) { aviso('Cole o link de afiliado.', true); return; }
+  if (API_URL.indexOf('COLE_AQUI') === 0) { aviso('Configure API_URL no index.html.', true); return; }
+  var origem = $('blocoProduto').hidden ? link : ($('produto').value.trim() || link);
+  $('gerar').disabled = true;
+  limparProduto();
+  aviso('Buscando…');
+  try {
+    var r = await api({ action: 'info', url: origem });
+    if (!r.ok) { mostrarErro(r); atualizarLegenda(); return; }
+    $('titulo').value = r.titulo || '';
+    $('preco').value = numeroParaCampo(r.preco);
+    $('precoAntigo').value = numeroParaCampo(r.precoAntigo);
+    imagemUrl = r.imagem || null;
+    $('previa').hidden = !imagemUrl;
+    if (imagemUrl) $('previa').src = imagemUrl;
+    $('compartilhar').disabled = !imagemUrl;
+    reiniciarBlocoProduto();
+    avancarModelo();
+    aviso('');
+    atualizarLegenda();
+  } catch (e) {
+    aviso('Falha de rede. Tente de novo ou preencha à mão.', true);
+    atualizarLegenda();
+  } finally {
+    $('gerar').disabled = false;
+  }
+}
+
+async function copiarLegenda() {
+  var texto = $('legenda').value;
+  try {
+    await navigator.clipboard.writeText(texto);
+  } catch (e) {
+    $('legenda').select();
+    document.execCommand('copy');
+  }
+  aviso('Legenda copiada.');
+}
+
+function trocarModelo() {
+  avancarModelo();
+  atualizarLegenda();
+}
+
+async function compartilharImagem() {
+  if (!imagemUrl) return;
+  aviso('Baixando imagem…');
+  try {
+    var r = await api({ action: 'img', url: imagemUrl });
+    if (!r.ok) { aviso('Não consegui baixar a imagem. Abrindo em outra aba.', true); window.open(imagemUrl, '_blank'); return; }
+    var bytes = Uint8Array.from(atob(r.base64), function (c) { return c.charCodeAt(0); });
+    var arquivo = new File([bytes], 'produto.' + (r.mime.split('/')[1] || 'jpg'), { type: r.mime });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      try { await navigator.share({ files: [arquivo] }); } catch (e) {}
+    } else {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(arquivo);
+      a.download = arquivo.name;
+      a.click();
+    }
+    aviso('');
+  } catch (e) {
+    aviso('Falha de rede ao baixar a imagem.', true);
+  }
+}
+
+$('gerar').addEventListener('click', gerar);
+$('copiar').addEventListener('click', copiarLegenda);
+$('modelo').addEventListener('click', trocarModelo);
+$('compartilhar').addEventListener('click', compartilharImagem);
+['titulo', 'preco', 'precoAntigo'].forEach(function (id) { $(id).addEventListener('input', atualizarLegenda); });
+$('link').addEventListener('input', function () { reiniciarBlocoProduto(); atualizarLegenda(); });
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+</script>
+</body>
+</html>
