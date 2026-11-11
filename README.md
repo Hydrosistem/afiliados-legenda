@@ -28,10 +28,11 @@ Para atualizar depois: Implantar → Gerenciar implantações → lápis → Ver
 ### 2. Tela
 1. Em `web/index.html`, troque `COLE_AQUI_A_URL_DO_WEB_APP` pela URL do passo anterior.
 2. Envie o repositório ao GitHub.
-3. Settings → Pages → Source: **GitHub Actions**. O workflow `pages.yml` publica a pasta `web/`.
+3. No Cloudflare: Workers & Pages → Create → "Continue to Pages" → Import an existing Git repository. Branch `main`, preset `None`, build command `node --test`, output directory `web`.
+4. Cada push na `main` roda os testes e publica a pasta `web/` em https://gerador-de-post.pages.dev.
 
 ### 3. Celular
-Abra a URL do Pages no Chrome, informe o `TOKEN` na primeira vez e use "Instalar app".
+Abra https://gerador-de-post.pages.dev no Chrome, informe o `TOKEN` na primeira vez e use "Instalar app".
 
 ## Quando o ML mudar a página
 Se título ou preço vierem vazios, a tela deixa os campos editáveis. Para corrigir a extração, salve a página nova em `test/fixtures/real/` e ajuste `src/parse.gs`.
