@@ -11,7 +11,21 @@
   :root { --amarelo: #ffe600; --texto: #222; --cinza: #6b6b6b; --borda: #d9d9d9; --fundo: #f5f5f5; }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: var(--fundo); }
-  header { background: var(--amarelo); padding: 14px 16px; font-weight: 700; font-size: 18px; }
+  header {
+    background: linear-gradient(135deg, #ffec3d 0%, #ffd000 55%, #ffb000 100%);
+    padding: calc(18px + env(safe-area-inset-top)) 16px 20px;
+    border-radius: 0 0 24px 24px;
+    box-shadow: 0 6px 20px rgba(160, 100, 0, .18);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .marca { display: flex; align-items: center; gap: 12px; }
+  header img { width: 46px; height: 46px; border-radius: 14px; border: 2.5px solid #fff; box-shadow: 0 4px 12px rgba(120, 70, 0, .28); }
+  header h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.3px; line-height: 1.15; }
+  header p { margin: 2px 0 0; font-size: 12.5px; font-weight: 500; color: rgba(34, 34, 34, .68); }
+  /* Sacolas nas cores de várias lojas: mostra que serve para qualquer loja, sem escrever nomes. */
+  .lojas { display: flex; justify-content: center; gap: 8px; }
+  .lojas span { width: 32px; height: 32px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(120, 70, 0, .2); }
+  .lojas svg { width: 17px; height: 17px; }
   main { max-width: 560px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
   label { display: block; font-size: 13px; color: var(--cinza); margin-bottom: 4px; }
   input, textarea { width: 100%; padding: 12px; font: inherit; border: 1px solid var(--borda); border-radius: 10px; background: #fff; }
@@ -31,7 +45,28 @@
 </style>
 </head>
 <body>
-<header>Gerador de Post</header>
+<header>
+  <div class="marca">
+    <img src="icon-192.png" alt="" width="46" height="46">
+    <div>
+      <h1>Gerador de Post</h1>
+      <p>Achadinhos e ofertas</p>
+    </div>
+  </div>
+  <div class="lojas" aria-hidden="true">
+    <svg width="0" height="0" style="position:absolute">
+      <symbol id="sacola" viewBox="0 0 24 24">
+        <path d="M5.5 8h13l-1.1 12.2a1 1 0 0 1-1 .8H7.6a1 1 0 0 1-1-.8L5.5 8z" fill="currentColor"/>
+        <path d="M9 10V7a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </symbol>
+    </svg>
+    <span style="color:#2d3277"><svg><use href="#sacola"/></svg></span>
+    <span style="color:#ee4d2d"><svg><use href="#sacola"/></svg></span>
+    <span style="color:#ff9900"><svg><use href="#sacola"/></svg></span>
+    <span style="color:#0086ff"><svg><use href="#sacola"/></svg></span>
+    <span style="color:#e91e63"><svg><use href="#sacola"/></svg></span>
+  </div>
+</header>
 <main>
   <div>
     <label for="link">Link de afiliado</label>
