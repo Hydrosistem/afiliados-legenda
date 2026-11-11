@@ -2,15 +2,17 @@ const crypto = require('node:crypto');
 
 // Fakes dos serviços do Apps Script usados por src/Code.gs.
 // respostas: fila de {code, headers?, body?, throw?}; cada UrlFetchApp.fetch consome uma.
-function makeStubs({ token = 'tok', respostas = [] } = {}) {
-  const chamadas = { fetch: 0, urls: [], cachePut: [] };
+function makeStubs({ token = 'tok', props = {}, respostas = [] } = {}) {
+  const propriedades = { TOKEN: token, ...props };
+  const chamadas = { fetch: 0, urls: [], opcoes: [], cachePut: [] };
   const fila = respostas.slice();
   const cache = new Map();
 
   const UrlFetchApp = {
-    fetch(url) {
+    fetch(url, opcoes) {
       chamadas.fetch++;
       chamadas.urls.push(url);
+      chamadas.opcoes.push(opcoes);
       const r = fila.shift();
       if (!r) throw new Error('sem resposta simulada');
       if (r.throw) throw new Error(r.throw);
@@ -32,7 +34,7 @@ function makeStubs({ token = 'tok', respostas = [] } = {}) {
   };
 
   const PropertiesService = {
-    getScriptProperties: () => ({ getProperty: (k) => (k === 'TOKEN' ? token : null) }),
+    getScriptProperties: () => ({ getProperty: (k) => (k in propriedades ? propriedades[k] : null) }),
   };
 
   const ContentService = {

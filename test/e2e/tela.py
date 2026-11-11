@@ -8,8 +8,10 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 WEB = os.path.join(RAIZ, 'web')
 ICON = open(os.path.join(WEB, 'icon-192.png'), 'rb').read()
 OK = {"ok": True, "titulo": "Fone Bluetooth X", "preco": 149.9, "precoAntigo": 199.9,
-      "imagem": "https://http2.mlstatic.com/D_NQ_NP_123-F.webp", "urlFinal": "https://www.mercadolivre.com.br/p/MLB1"}
-T0 = '🔥 *Fone Bluetooth X*\n\nDe ~R$ 199,90~ por *R$ 149,90* (25% OFF)\n\n👉 https://meli.la/abc'
+      "imagem": "https://http2.mlstatic.com/D_NQ_NP_123-F.webp", "urlFinal": "https://www.mercadolivre.com.br/p/MLB1",
+      "frase": "Som potente pra animar seu dia!!", "emoji": "🎧"}
+SEM_FRASE = dict(OK, frase="", emoji="")
+T0 = '*FONE BLUETOOTH X* 🎧\n\nde ~R$199,90~ por 💥 *R$149,90*💥\n\n💗 _Som potente pra animar seu dia!!_\n\n🏠 https://meli.la/abc'
 
 s = socket.socket(); s.bind(('127.0.0.1', 0)); PORTA = s.getsockname()[1]; s.close()
 servidor = subprocess.Popen([sys.executable, '-m', 'http.server', str(PORTA), '--directory', WEB],
@@ -33,7 +35,7 @@ def novo(p, resp=OK):
     pg.route('http://mock.local/**', api)
     pg.route('https://http2.mlstatic.com/**', lambda r: r.fulfill(status=200, content_type='image/png', body=ICON))
     pg.goto(f'http://127.0.0.1:{PORTA}/index.html')
-    pg.evaluate("localStorage.setItem('afl_token','tok'); localStorage.removeItem('afl_tpl'); API_URL='http://mock.local/api'")
+    pg.evaluate("localStorage.setItem('afl_token','tok'); API_URL='http://mock.local/api'")
     return b, pg, estado
 
 def gerar(pg, link=None):
@@ -45,17 +47,29 @@ def gerar(pg, link=None):
 def esperar_aviso(pg, trecho):
     pg.wait_for_function("t => document.getElementById('aviso').textContent.includes(t)", arg=trecho)
 
-def sucesso_edicao_modelo(p):
+def sucesso_edicao(p):
     b, pg, e = novo(p)
     gerar(pg, 'https://meli.la/abc')
     pg.wait_for_function("document.getElementById('titulo').value !== ''")
     assert pg.input_value('#legenda') == T0, pg.input_value('#legenda')
+    assert pg.input_value('#frase') == 'Som potente pra animar seu dia!!' and pg.input_value('#emoji') == '🎧'
     assert not pg.is_disabled('#compartilhar') and pg.is_visible('#previa')
-    pg.click('#modelo')
-    assert 'OFERTA' in pg.input_value('#legenda')
+    assert pg.locator('#modelo').count() == 0
     pg.fill('#preco', '99,90')
-    assert '*R$ 99,90*' in pg.input_value('#legenda') and '50% OFF' in pg.input_value('#legenda')
+    assert 'de ~R$199,90~ por 💥 *R$99,90*💥' in pg.input_value('#legenda'), pg.input_value('#legenda')
+    pg.fill('#frase', 'Outra frase!!'); pg.fill('#emoji', '🔥')
+    assert '💗 _Outra frase!!_' in pg.input_value('#legenda') and pg.input_value('#legenda').startswith('*FONE BLUETOOTH X* 🔥')
     assert e['erros'] == [], e['erros']
+    b.close()
+
+def sem_frase_avisa_e_digita(p):
+    b, pg, e = novo(p, SEM_FRASE)
+    gerar(pg, 'https://meli.la/abc')
+    pg.wait_for_function("document.getElementById('titulo').value !== ''")
+    assert 'frase' in pg.inner_text('#aviso').lower(), pg.inner_text('#aviso')
+    assert '💗' not in pg.input_value('#legenda')
+    pg.fill('#frase', 'Digitei eu!!')
+    assert '💗 _Digitei eu!!_' in pg.input_value('#legenda')
     b.close()
 
 def link_curto(p):
@@ -69,7 +83,7 @@ def rede(p):
     b, pg, e = novo(p); e['abortar'] = True
     gerar(pg, 'https://meli.la/abc'); esperar_aviso(pg, 'rede')
     pg.fill('#titulo', 'Digitado à mão'); pg.fill('#preco', '50')
-    assert 'Digitado à mão' in pg.input_value('#legenda') and '*R$ 50,00*' in pg.input_value('#legenda')
+    assert '*DIGITADO À MÃO*' in pg.input_value('#legenda') and 'por 💥 *R$50*💥' in pg.input_value('#legenda'), pg.input_value('#legenda')
     assert pg.is_disabled('#compartilhar')
     b.close()
 
@@ -86,8 +100,9 @@ def falha_apaga_produto_anterior(p):
     e['abortar'] = True
     gerar(pg, 'https://meli.la/outro'); esperar_aviso(pg, 'rede')
     assert pg.input_value('#titulo') == '' and pg.input_value('#preco') == '' and pg.input_value('#precoAntigo') == ''
+    assert pg.input_value('#frase') == '' and pg.input_value('#emoji') == ''
     assert not pg.is_visible('#previa') and pg.is_disabled('#compartilhar')
-    assert 'Fone Bluetooth X' not in pg.input_value('#legenda')
+    assert 'FONE BLUETOOTH X' not in pg.input_value('#legenda') and 'Som potente' not in pg.input_value('#legenda')
     assert 'https://meli.la/outro' in pg.input_value('#legenda')
     b.close()
 
@@ -111,15 +126,15 @@ def link_do_produto_reinicia(p):
     assert not pg.is_visible('#blocoProduto') and pg.input_value('#produto') == ''
     b.close()
 
-def modelo_alterna_a_cada_geracao(p):
+def nova_geracao_troca_a_frase(p):
     b, pg, e = novo(p)
     gerar(pg, 'https://meli.la/abc')
     pg.wait_for_function("document.getElementById('titulo').value !== ''")
-    primeira = pg.input_value('#legenda')
-    assert primeira == T0, primeira
+    pg.fill('#frase', 'editada')
+    e['resp'] = dict(OK, frase='Nova frase!!', emoji='🛒')
     gerar(pg)
-    segunda = pg.input_value('#legenda')
-    assert segunda != primeira and 'OFERTA' in segunda, segunda
+    assert pg.input_value('#frase') == 'Nova frase!!' and pg.input_value('#emoji') == '🛒'
+    assert '💗 _Nova frase!!_' in pg.input_value('#legenda')
     b.close()
 
 def manifest(p):
@@ -130,8 +145,8 @@ def manifest(p):
 falhas = []
 try:
     with sync_playwright() as p:
-        for fn in [sucesso_edicao_modelo, link_curto, rede, token_invalido, falha_apaga_produto_anterior,
-                   link_do_produto_reinicia, modelo_alterna_a_cada_geracao, manifest]:
+        for fn in [sucesso_edicao, sem_frase_avisa_e_digita, link_curto, rede, token_invalido, falha_apaga_produto_anterior,
+                   link_do_produto_reinicia, nova_geracao_troca_a_frase, manifest]:
             try:
                 fn(p); print('ok  ', fn.__name__)
             except Exception:

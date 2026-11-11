@@ -1,4 +1,4 @@
-// Web app do Apps Script. Depende de src/parse.gs (mesmo projeto).
+// Web app do Apps Script. Depende de src/parse.gs e src/frase.gs (mesmo projeto).
 
 var UA_ = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 var MAX_REDIRECIONAMENTOS_ = 5;
@@ -73,15 +73,19 @@ function buscarInfo_(url) {
   var d = parseProduto(pagina.resp.getContentText());
   if (d.titulo === null && d.preco === null) return { ok: false, erro: 'link_curto' };
 
+  var f = gerarFrase_(d.titulo);
   var out = {
     ok: true,
     titulo: d.titulo,
     preco: d.preco,
     precoAntigo: d.precoAntigo,
     imagem: d.imagem,
-    urlFinal: pagina.urlFinal
+    urlFinal: pagina.urlFinal,
+    frase: f.frase,
+    emoji: f.emoji
   };
-  cache.put(chave, JSON.stringify(out), TTL_CACHE_);
+  // Frase vazia por falha do Gemini não fica em cache, para a próxima tentativa poder gerar.
+  if (f.frase !== '' || !chaveGemini_()) cache.put(chave, JSON.stringify(out), TTL_CACHE_);
   return out;
 }
 

@@ -1,11 +1,5 @@
 // Funções puras de legenda. Em Node exporta via module.exports; no navegador ficam globais.
 
-function formatBRL(n) {
-  var partes = Math.abs(n).toFixed(2).split('.');
-  var inteiro = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return 'R$ ' + inteiro + ',' + partes[1];
-}
-
 function encurtarTitulo(t, max) {
   max = max || 70;
   t = String(t || '');
@@ -26,39 +20,38 @@ function parseValor(s) {
   return isFinite(n) ? n : null;
 }
 
-function calcDesconto(antigo, atual) {
-  if (!(antigo > 0) || !(atual > 0) || !(antigo > atual)) return null;
-  var pct = Math.round(((antigo - atual) / antigo) * 100);
-  return pct > 0 ? pct : null;
+// 183.2 -> 'R$183,20'; 300 -> 'R$300' (sem espaço e sem ,00, como no canal)
+function precoCurto(n) {
+  var partes = Math.abs(n).toFixed(2).split('.');
+  var inteiro = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return 'R$' + inteiro + (partes[1] === '00' ? '' : ',' + partes[1]);
 }
 
 function linhaPreco_(d) {
   if (!(d.preco > 0)) return '';
-  var desc = calcDesconto(d.precoAntigo, d.preco);
-  if (desc === null) return '*' + formatBRL(d.preco) + '*';
-  return 'De ~' + formatBRL(d.precoAntigo) + '~ por *' + formatBRL(d.preco) + '* (' + desc + '% OFF)';
+  var por = '💥 *' + precoCurto(d.preco) + '*💥';
+  if (d.precoAntigo > d.preco) return 'de ~' + precoCurto(d.precoAntigo) + '~ por ' + por;
+  return 'por ' + por;
 }
 
-function negrito_(t) {
-  return t === '' ? '' : '*' + t + '*';
+function linhaTitulo_(d) {
+  var t = encurtarTitulo(String(d.titulo || '').trim(), 100).toUpperCase();
+  if (t === '') return '';
+  var e = String(d.emoji || '').trim();
+  return '*' + t + '*' + (e === '' ? '' : ' ' + e);
 }
 
-function juntar_(blocos) {
-  return blocos.filter(function (b) { return b !== ''; }).join('\n\n');
+function linhaFrase_(d) {
+  var f = String(d.frase || '').trim();
+  return f === '' ? '' : '💗 _' + f + '_';
 }
 
-var TEMPLATES = [
-  function (d) { return juntar_([(d.titulo === '' ? '🔥' : '🔥 ' + negrito_(d.titulo)), linhaPreco_(d), '👉 ' + d.link]); },
-  function (d) { return juntar_(['⚡ OFERTA RELÂMPAGO', negrito_(d.titulo), linhaPreco_(d), '🛒 Compre aqui: ' + d.link]); },
-  function (d) { return juntar_(['💥 Achado do dia', d.titulo, linhaPreco_(d), '👇 Link:\n' + d.link]); },
-  function (d) { return juntar_(['🛒 Olha esse preço!', [negrito_(d.titulo), linhaPreco_(d)].filter(function (l) { return l !== ''; }).join('\n'), 'Garanta o seu 👉 ' + d.link]); }
-];
-
-function montarLegenda(d, idx) {
-  var dados = { titulo: encurtarTitulo(d.titulo), preco: d.preco, precoAntigo: d.precoAntigo, link: d.link };
-  return TEMPLATES[idx % TEMPLATES.length](dados);
+function montarLegenda(d) {
+  return [linhaTitulo_(d), linhaPreco_(d), linhaFrase_(d), '🏠 ' + d.link]
+    .filter(function (b) { return b !== ''; })
+    .join('\n\n');
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { formatBRL: formatBRL, encurtarTitulo: encurtarTitulo, calcDesconto: calcDesconto, parseValor: parseValor, TEMPLATES: TEMPLATES, montarLegenda: montarLegenda };
+  module.exports = { encurtarTitulo: encurtarTitulo, parseValor: parseValor, precoCurto: precoCurto, montarLegenda: montarLegenda };
 }

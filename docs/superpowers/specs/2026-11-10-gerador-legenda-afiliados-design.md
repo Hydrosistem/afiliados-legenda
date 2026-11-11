@@ -25,9 +25,9 @@ Mesma stack que o usuário já opera, em repositório próprio.
 | Peça | Tecnologia | Função |
 |---|---|---|
 | `index.html` + `caption.js` | HTML/CSS/JS + `manifest.json` + `sw.js` mínimo | Tela. Hospedada no GitHub Pages. A lógica de legenda fica em `caption.js` para ser testada em Node. |
-| `Code.gs` + `parse.gs` | Google Apps Script (web app) | Busca e lê a página do produto. A extração fica em `parse.gs` (função pura, testável). |
+| `Code.gs` + `parse.gs` + `frase.gs` | Google Apps Script (web app) | Busca e lê a página do produto. A extração fica em `parse.gs` (função pura, testável). `frase.gs` pede ao Gemini (plano gratuito) a frase de efeito e o emoji do produto. |
 
-Sem banco de dados. Estado local (token de acesso, índice do template) fica no `localStorage`.
+Sem banco de dados. Estado local (token de acesso) fica no `localStorage`.
 
 ## Backend (`Code.gs`)
 
@@ -60,32 +60,41 @@ Elementos:
 
 1. Campo "Link de afiliado" + botão **Gerar**.
 2. Pré-visualização da imagem.
-3. Campos editáveis: título, preço atual, preço antigo.
+3. Campos editáveis: título, emoji, preço atual, preço antigo, frase de efeito.
 4. Caixa de texto com a legenda montada (editável).
-5. Botões: **Copiar legenda**, **Compartilhar imagem** (Web Share API com arquivo; se o aparelho não suportar, baixa a imagem), **Outro modelo** (troca o template).
+5. Botões: **Copiar legenda**, **Compartilhar imagem** (Web Share API com arquivo; se o aparelho não suportar, baixa a imagem).
 6. Configuração inicial: pedir o token na primeira vez e guardar no `localStorage`. URL do Apps Script fixa em constante.
 
-### Templates de legenda
+### Formato da legenda
 
-4 modelos fixos em constante no código. Alternam a cada geração (índice no `localStorage`). Usam formatação do WhatsApp (`*negrito*`, `~riscado~`).
-
-Exemplo com desconto:
+Um único formato, igual ao dos posts do canal (formatação do WhatsApp: `*negrito*`, `~riscado~`, `_itálico_`):
 
 ```
-🔥 *{titulo}*
+*{TÍTULO EM CAIXA ALTA}* {emoji}
 
-De ~R$ {precoAntigo}~ por *R$ {preco}* ({desconto}% OFF)
+de ~R$300~ por 💥 *R$183,20*💥
 
-👉 {link}
+💗 _{frase de efeito}_
+
+🏠 {link}
 ```
 
-Sem preço antigo, a linha de preço vira só `*R$ {preco}*`.
+Sem preço antigo, a linha de preço vira `por 💥 *R$274,17*💥`.
 
 Regras de montagem:
 
-- Título cortado em ~70 caracteres, no limite de palavra, com "…".
-- Preço no formato brasileiro (`R$ 1.234,56`).
-- Desconto = arredondamento de `(antigo - atual) / antigo`, mostrado só se `antigo > atual`.
+- Título em caixa alta, cortado em ~100 caracteres no limite de palavra, com "…".
+- Preço sem espaço depois de `R$`, sem `,00` quando inteiro, ponto de milhar (`R$1.299,90`, `R$300`).
+- "de ~antigo~" só aparece se `antigo > atual`. Não há "% OFF".
+- Frase vazia: a linha do 💗 some. Sem emoji: sem espaço sobrando depois do título. Sem preço: a linha de preço some.
+
+### Frase de efeito (Gemini)
+
+- O backend chama a API REST do Gemini (`generateContent`) depois de ler a página, com o título como único dado do produto. O prompt traz dois exemplos reais do canal e trata o título como dado não confiável (uma linha, até 200 caracteres, sem `<`/`>`).
+- A resposta é JSON `{frase, emoji}`; é validada (sem `*`, `_`, `~`, até 160 caracteres, emoji curto e sem letras). Qualquer falha (sem chave, cota, rede, resposta inválida) devolve frase e emoji vazios: a tela avisa e o usuário digita.
+- Chave em `ScriptProperties` (`GEMINI_KEY`), enviada no cabeçalho `x-goog-api-key`, nunca na URL. Modelo opcional em `GEMINI_MODEL` (padrão `gemini-2.5-flash-lite`).
+- Resultado com frase entra no cache de 1 h; resultado sem frase (falha do Gemini) não é guardado, para a próxima tentativa poder gerar.
+- No plano gratuito, Google pode usar os prompts para melhorar seus produtos; só o título público do produto é enviado.
 
 ## Tratamento de erros
 
@@ -95,6 +104,7 @@ Regras de montagem:
 | Host não permitido | "Cole um link do Mercado Livre." |
 | ML bloqueia ou muda a página | Campos vazios e editáveis, aviso na tela. O usuário preenche à mão e a legenda ainda funciona. |
 | Link curto não resolve | Segundo campo pede o link do produto. |
+| Gemini indisponível, sem chave ou sem cota | Frase e emoji vazios, aviso na tela; o usuário digita a frase. |
 | Imagem não carrega | Legenda continua disponível; compartilhar imagem fica desativado. |
 | Backend fora do ar | Mensagem de erro de rede, sem travar a tela. |
 

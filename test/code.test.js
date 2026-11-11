@@ -9,7 +9,7 @@ const fx = (n) => fs.readFileSync(path.join(__dirname, 'fixtures', n), 'utf8');
 
 function ambiente(opts) {
   const stubs = makeStubs(opts);
-  const ctx = loadGs(['src/parse.gs', 'src/Code.gs'], stubs);
+  const ctx = loadGs(['src/parse.gs', 'src/frase.gs', 'src/Code.gs'], stubs);
   const chamar = (p) => JSON.parse(ctx.doGet({ parameter: p }).getContent());
   return { stubs, chamar };
 }
@@ -45,6 +45,8 @@ test('info feliz devolve campos e urlFinal', () => {
     precoAntigo: 199.9,
     imagem: 'https://http2.mlstatic.com/D_NQ_NP_123-F.webp',
     urlFinal: 'https://www.mercadolivre.com.br/p/MLB1',
+    frase: '',
+    emoji: '',
   });
 });
 
@@ -112,4 +114,85 @@ test('img com host fora da lista devolve erro host', () => {
   const { chamar, stubs } = ambiente();
   assert.deepEqual(chamar({ token: 'tok', action: 'img', url: 'https://evil.com/a.jpg' }), { ok: false, erro: 'host' });
   assert.equal(stubs.chamadas.fetch, 0);
+});
+
+// ---- frase de efeito (Gemini) ----
+const gemini = (frase, emoji) => ({
+  code: 200,
+  body: JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ frase, emoji }) }] } }] }),
+});
+const paginaOk = () => [
+  { code: 302, headers: { Location: 'https://www.mercadolivre.com.br/p/MLB1' } },
+  { code: 200, body: fx('com-desconto.html') },
+];
+
+test('com chave: info inclui frase e emoji do Gemini e usa chave no cabeçalho', () => {
+  const { chamar, stubs } = ambiente({
+    props: { GEMINI_KEY: 'k123' },
+    respostas: [...paginaOk(), gemini('Som potente pra animar seu dia!!', '🎧')],
+  });
+  const r = chamar(info('https://meli.la/abc'));
+  assert.equal(r.ok, true);
+  assert.equal(r.frase, 'Som potente pra animar seu dia!!');
+  assert.equal(r.emoji, '🎧');
+  const i = stubs.chamadas.fetch - 1;
+  const url = stubs.chamadas.urls[i];
+  const op = stubs.chamadas.opcoes[i];
+  assert.ok(url.startsWith('https://generativelanguage.googleapis.com/'), url);
+  assert.ok(!url.includes('k123'), 'chave não pode ir na URL');
+  assert.equal(op.method, 'post');
+  assert.equal(op.headers['x-goog-api-key'], 'k123');
+  assert.equal(op.muteHttpExceptions, true);
+  assert.ok(JSON.parse(op.payload).contents[0].parts[0].text.includes('Fone Bluetooth X'));
+});
+
+test('GEMINI_MODEL troca o modelo na URL', () => {
+  const { chamar, stubs } = ambiente({
+    props: { GEMINI_KEY: 'k', GEMINI_MODEL: 'gemini-x-teste' },
+    respostas: [...paginaOk(), gemini('Oi!!', '🔥')],
+  });
+  chamar(info('https://meli.la/abc'));
+  assert.ok(stubs.chamadas.urls.at(-1).includes('/models/gemini-x-teste:generateContent'));
+});
+
+test('sem chave: frase e emoji vazios e nenhuma chamada ao Gemini', () => {
+  const { chamar, stubs } = ambiente({ respostas: paginaOk() });
+  const r = chamar(info('https://meli.la/abc'));
+  assert.equal(r.ok, true);
+  assert.equal(r.frase, '');
+  assert.equal(r.emoji, '');
+  assert.equal(stubs.chamadas.fetch, 2);
+});
+
+test('Gemini falha (429, exceção, JSON ruim): ok com frase vazia', () => {
+  const falhas = [
+    { code: 429, body: '{"error":{}}' },
+    { code: 200, throw: undefined, body: 'nao json' },
+    { code: 200, body: JSON.stringify({ candidates: [] }) },
+  ];
+  for (const f of falhas) {
+    const { chamar } = ambiente({ props: { GEMINI_KEY: 'k' }, respostas: [...paginaOk(), f] });
+    const r = chamar(info('https://meli.la/abc'));
+    assert.equal(r.ok, true);
+    assert.equal(r.frase, '');
+    assert.equal(r.emoji, '');
+    assert.equal(r.titulo, 'Fone Bluetooth X');
+  }
+  const { chamar } = ambiente({ props: { GEMINI_KEY: 'k' }, respostas: [...paginaOk(), { throw: 'rede caiu' }] });
+  assert.equal(chamar(info('https://meli.la/abc')).frase, '');
+});
+
+test('cache: guarda quando há frase; não guarda quando a frase veio vazia', () => {
+  const com = ambiente({ props: { GEMINI_KEY: 'k' }, respostas: [...paginaOk(), gemini('Oi!!', '🔥')] });
+  com.chamar(info('https://meli.la/abc'));
+  assert.equal(com.stubs.chamadas.cachePut.length, 1);
+  const sem = ambiente({ props: { GEMINI_KEY: 'k' }, respostas: [...paginaOk(), { code: 429 }] });
+  sem.chamar(info('https://meli.la/abc'));
+  assert.equal(sem.stubs.chamadas.cachePut.length, 0);
+});
+
+test('sem chave o resultado continua sendo guardado em cache', () => {
+  const { chamar, stubs } = ambiente({ respostas: paginaOk() });
+  chamar(info('https://meli.la/abc'));
+  assert.equal(stubs.chamadas.cachePut.length, 1);
 });

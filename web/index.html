@@ -22,6 +22,7 @@
   .linha { display: flex; gap: 8px; }
   .linha > * { flex: 1; }
   .linha > button { flex: 0 0 auto; }
+  .linha > .emoji { flex: 0 0 76px; }
   .precos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   #aviso { min-height: 20px; font-size: 14px; color: var(--cinza); }
   #aviso.erro { color: #b3261e; }
@@ -45,13 +46,23 @@
   </div>
   <div id="aviso" role="status"></div>
   <img id="previa" alt="Imagem do produto" hidden>
-  <div>
-    <label for="titulo">Título</label>
-    <input id="titulo" type="text" autocomplete="off">
+  <div class="linha">
+    <div>
+      <label for="titulo">Título</label>
+      <input id="titulo" type="text" autocomplete="off">
+    </div>
+    <div class="emoji">
+      <label for="emoji">Emoji</label>
+      <input id="emoji" type="text" autocomplete="off">
+    </div>
   </div>
   <div class="precos">
     <div><label for="preco">Preço atual</label><input id="preco" type="text" inputmode="decimal" placeholder="149,90" autocomplete="off"></div>
     <div><label for="precoAntigo">Preço antigo</label><input id="precoAntigo" type="text" inputmode="decimal" placeholder="199,90" autocomplete="off"></div>
+  </div>
+  <div>
+    <label for="frase">Frase de efeito 💗</label>
+    <input id="frase" type="text" placeholder="Ex.: Toque macio e conforto gostoso pra transformar seu sono!!" autocomplete="off">
   </div>
   <div>
     <label for="legenda">Legenda</label>
@@ -59,7 +70,6 @@
   </div>
   <div class="linha">
     <button id="copiar" type="button">Copiar legenda</button>
-    <button id="modelo" type="button" class="sec">Outro modelo</button>
   </div>
   <button id="compartilhar" type="button" class="sec" disabled>Compartilhar imagem</button>
 </main>
@@ -68,7 +78,6 @@
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbzH4coDv1Xl1mFLOnETUP5jRLA93kGO4EpQ6z12aaEuFSqrTOl9HTPe9nd4vAWe9AjbCg/exec';
 var LS_TOKEN = 'afl_token';
-var LS_TPL = 'afl_tpl';
 var imagemUrl = null;
 
 function $(id) { return document.getElementById(id); }
@@ -103,18 +112,12 @@ function numeroParaCampo(n) {
   return typeof n === 'number' && isFinite(n) ? n.toFixed(2).replace('.', ',') : '';
 }
 
-function indiceModelo() { return parseInt(lerLS(LS_TPL) || '0', 10) || 0; }
-
-// Primeira vez usa o modelo 0; depois avança um por vez (a cada geração e no botão "Outro modelo").
-function avancarModelo() {
-  var atual = lerLS(LS_TPL);
-  gravarLS(LS_TPL, String(atual === null ? 0 : (indiceModelo() + 1) % TEMPLATES.length));
-}
-
 function limparProduto() {
   $('titulo').value = '';
   $('preco').value = '';
   $('precoAntigo').value = '';
+  $('frase').value = '';
+  $('emoji').value = '';
   imagemUrl = null;
   $('previa').hidden = true;
   $('previa').removeAttribute('src');
@@ -130,10 +133,12 @@ function atualizarLegenda() {
   var link = $('link').value.trim();
   $('legenda').value = montarLegenda({
     titulo: $('titulo').value.trim(),
+    emoji: $('emoji').value.trim(),
+    frase: $('frase').value.trim(),
     preco: parseValor($('preco').value),
     precoAntigo: parseValor($('precoAntigo').value),
     link: link
-  }, indiceModelo());
+  });
 }
 
 function mostrarErro(r) {
@@ -159,13 +164,14 @@ async function gerar() {
     $('titulo').value = r.titulo || '';
     $('preco').value = numeroParaCampo(r.preco);
     $('precoAntigo').value = numeroParaCampo(r.precoAntigo);
+    $('frase').value = r.frase || '';
+    $('emoji').value = r.emoji || '';
     imagemUrl = r.imagem || null;
     $('previa').hidden = !imagemUrl;
     if (imagemUrl) $('previa').src = imagemUrl;
     $('compartilhar').disabled = !imagemUrl;
     reiniciarBlocoProduto();
-    avancarModelo();
-    aviso('');
+    aviso($('frase').value.trim() === '' ? 'Sem frase de efeito automática. Digite a frase abaixo.' : '');
     atualizarLegenda();
   } catch (e) {
     aviso('Falha de rede. Tente de novo ou preencha à mão.', true);
@@ -184,11 +190,6 @@ async function copiarLegenda() {
     document.execCommand('copy');
   }
   aviso('Legenda copiada.');
-}
-
-function trocarModelo() {
-  avancarModelo();
-  atualizarLegenda();
 }
 
 async function compartilharImagem() {
@@ -215,9 +216,8 @@ async function compartilharImagem() {
 
 $('gerar').addEventListener('click', gerar);
 $('copiar').addEventListener('click', copiarLegenda);
-$('modelo').addEventListener('click', trocarModelo);
 $('compartilhar').addEventListener('click', compartilharImagem);
-['titulo', 'preco', 'precoAntigo'].forEach(function (id) { $(id).addEventListener('input', atualizarLegenda); });
+['titulo', 'emoji', 'frase', 'preco', 'precoAntigo'].forEach(function (id) { $(id).addEventListener('input', atualizarLegenda); });
 $('link').addEventListener('input', function () { reiniciarBlocoProduto(); atualizarLegenda(); });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
