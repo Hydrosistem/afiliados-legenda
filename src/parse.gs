@@ -98,18 +98,30 @@ function precoAntigo_(html) {
   return isFinite(reais) ? reais + centavos / 100 : null;
 }
 
+// '1.554,90' -> 1554.9; '64,99' -> 64.99; '359' -> 359
+function valorBR_(s) {
+  var n = Number(String(s).replace(/\./g, '').replace(',', '.'));
+  return isFinite(n) && n > 0 ? n : null;
+}
+
 function parseProduto(html) {
   html = String(html || '');
   var titulo = metaContent_(html, 'property', 'og:title');
+  var precoTitulo = null;
   if (titulo !== null) {
-    titulo = decodificarEntidades_(titulo)
-      .replace(/\s*\|\s*Mercado\s?Livre\s*$/i, '')
-      .replace(/\s+-\s+R\$\s*[\d.,]+\s*$/, '')
-      .trim();
+    titulo = decodificarEntidades_(titulo).replace(/\s*\|\s*Mercado\s?Livre\s*$/i, '');
+    // O ML põe o preço atual no fim do og:title. Na página "social" do afiliado é o único lugar com ele.
+    var sufixo = /\s+-\s+R\$\s*(\d[\d.]*(?:,\d{1,2})?)\s*$/.exec(titulo);
+    if (sufixo) {
+      precoTitulo = valorBR_(sufixo[1]);
+      titulo = titulo.slice(0, sufixo.index);
+    }
+    titulo = titulo.trim();
     if (titulo === '') titulo = null;
   }
   var imagem = metaContent_(html, 'property', 'og:image');
   var preco = precoJsonLd_(html);
   if (preco === null) preco = paraNumero_(metaContent_(html, 'itemprop', 'price'));
+  if (preco === null) preco = precoTitulo;
   return { titulo: titulo, preco: preco, precoAntigo: precoAntigo_(html), imagem: imagem };
 }

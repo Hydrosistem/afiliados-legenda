@@ -105,3 +105,18 @@ test('remove o preço que o ML põe no fim do og:title', () => {
   assert.equal(t('Kit 4 Blusas - R$ 64,99 | MercadoLivre'), 'Kit 4 Blusas');
   assert.equal(t('Vale R$ 50 em compras'), 'Vale R$ 50 em compras');
 });
+
+// Página "social" do afiliado (destino atual do meli.la): sem JSON-LD nem itemprop; o preço atual só vem no og:title.
+test('sem JSON-LD nem itemprop usa o preço do fim do og:title', () => {
+  const p = (c) => ctx.parseProduto(`<meta property="og:title" content="${c}">`).preco;
+  assert.equal(p('Tênis Flyer Runner Mesh Feminino Puma - R$ 170,99'), 170.99);
+  assert.equal(p('Celular Samsung A17 - Azul - R$ 1.554'), 1554);
+  assert.equal(p('Kit 4 Blusas - R$ 64,99 | MercadoLivre'), 64.99);
+  assert.equal(p('Vale R$ 50 em compras'), null);
+});
+
+test('preço do JSON-LD tem prioridade sobre o do og:title', () => {
+  const html = '<meta property="og:title" content="Produto - R$ 10">' +
+    '<script type="application/ld+json">{"@type":"Product","offers":{"price":12.5}}</script>';
+  assert.equal(ctx.parseProduto(html).preco, 12.5);
+});

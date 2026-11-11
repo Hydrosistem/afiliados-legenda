@@ -92,7 +92,7 @@ Regras de montagem:
 
 - O backend chama a API REST do Gemini (`generateContent`) depois de ler a página, com o título como único dado do produto. O prompt traz dois exemplos reais do canal e trata o título como dado não confiável (uma linha, até 200 caracteres, sem `<`/`>`).
 - A resposta é JSON `{frase, emoji}`; é validada (sem `*`, `_`, `~`, até 160 caracteres, emoji curto e sem letras). Qualquer falha (sem chave, cota, rede, resposta inválida) devolve frase e emoji vazios: a tela avisa e o usuário digita.
-- Chave em `ScriptProperties` (`GEMINI_KEY`), enviada no cabeçalho `x-goog-api-key`, nunca na URL. Modelo opcional em `GEMINI_MODEL` (padrão `gemini-2.5-flash-lite`).
+- Chave em `ScriptProperties` (`GEMINI_KEY`), enviada no cabeçalho `x-goog-api-key`, nunca na URL. Modelo opcional em `GEMINI_MODEL` (padrão `gemini-3.5-flash-lite`).
 - Resultado com frase entra no cache de 1 h; resultado sem frase (falha do Gemini) não é guardado, para a próxima tentativa poder gerar.
 - No plano gratuito, Google pode usar os prompts para melhorar seus produtos; só o título público do produto é enviado.
 

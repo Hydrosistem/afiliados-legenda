@@ -1,7 +1,7 @@
 // Frase de efeito + emoji gerados pelo Gemini (plano gratuito). Depende só dos serviços do Apps Script.
 // Configuração (Propriedades do script): GEMINI_KEY (obrigatória p/ ligar) e GEMINI_MODEL (opcional).
 
-var GEMINI_MODELO_PADRAO_ = 'gemini-2.5-flash-lite';
+var GEMINI_MODELO_PADRAO_ = 'gemini-3.5-flash-lite';
 var FRASE_MAX_ = 160;
 var TITULO_PROMPT_MAX_ = 200;
 
@@ -73,11 +73,17 @@ function gerarFrase_(titulo) {
         generationConfig: { responseMimeType: 'application/json', temperature: 1, maxOutputTokens: 300 }
       })
     });
-    if (resp.getResponseCode() !== 200) return vazio;
+    // Os avisos aparecem em Apps Script → Execuções. A chave não é registrada.
+    if (resp.getResponseCode() !== 200) {
+      console.warn('Gemini HTTP ' + resp.getResponseCode() + ': ' + String(resp.getContentText()).slice(0, 300));
+      return vazio;
+    }
     var corpo = JSON.parse(resp.getContentText());
     var lido = lerRespostaFrase_(corpo.candidates[0].content.parts[0].text);
+    if (!lido) console.warn('Gemini: resposta fora do formato esperado');
     return lido || vazio;
   } catch (err) {
+    console.warn('Gemini: ' + err);
     return vazio;
   }
 }
