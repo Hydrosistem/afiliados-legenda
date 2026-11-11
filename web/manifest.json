@@ -1,6 +1,6 @@
 {
-  "name": "Legenda Afiliados",
-  "short_name": "Legendas",
+  "name": "Gerador de Post",
+  "short_name": "Gerador Post",
   "lang": "pt-BR",
   "display": "standalone",
   "start_url": "./",

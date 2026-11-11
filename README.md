@@ -1,4 +1,4 @@
-# Legenda Afiliados (Mercado Livre)
+# Gerador de Post (Mercado Livre)
 
 Cola o link de afiliado, recebe a legenda pronta para o canal do WhatsApp.
 
