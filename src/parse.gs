@@ -1,7 +1,8 @@
 // Funções puras de extração e validação. Sem dependência de serviços do Apps Script.
 
 var HOSTS_PRODUTO_ = ['mercadolivre.com.br', 'produto.mercadolivre.com.br', 'mercadolivre.com', 'mercadolibre.com', 'meli.la'];
-var HOSTS_IMAGEM_ = ['mlstatic.com'];
+var HOSTS_IMAGEM_ = ['mlstatic.com', 'susercontent.com'];
+var HOSTS_SHOPEE_ = ['shopee.com.br', 'shope.ee'];
 
 function hostDe_(url) {
   var m = /^https:\/\/([^\/:?#@]+)(?::\d+)?(?:[\/?#]|$)/i.exec(String(url || ''));
@@ -23,6 +24,23 @@ function hostProdutoPermitido(url) {
 
 function hostImagemPermitido(url) {
   return hostNaLista_(url, HOSTS_IMAGEM_);
+}
+
+function hostShopee(url) {
+  return hostNaLista_(url, HOSTS_SHOPEE_);
+}
+
+// IDs do produto no endereço da Shopee: ".../Nome-i.<shopId>.<itemId>" ou ".../product/<shopId>/<itemId>".
+function idsShopee(url) {
+  var s = String(url || '');
+  var m = /-i\.(\d+)\.(\d+)(?:[?#\/]|$)/.exec(s) || /\/product\/(\d+)\/(\d+)(?:[?#\/]|$)/.exec(s);
+  return m ? { shopId: m[1], itemId: m[2] } : null;
+}
+
+// A API da Shopee não informa o preço cheio, só o percentual de desconto: estima a partir dele.
+function precoAntigoPorDesconto(preco, taxa) {
+  if (!(preco > 0) || !(taxa > 0) || taxa >= 100) return null;
+  return Math.round((preco / (1 - taxa / 100)) * 100) / 100;
 }
 
 function decodificarEntidades_(s) {

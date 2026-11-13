@@ -1,4 +1,4 @@
-// Web app do Apps Script. Depende de src/parse.gs e src/acesso.gs (mesmo projeto).
+// Web app do Apps Script. Depende de src/parse.gs, src/acesso.gs e src/shopee.gs (mesmo projeto).
 
 var UA_ = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 var MAX_REDIRECIONAMENTOS_ = 5;
@@ -54,7 +54,7 @@ function doPost(e) {
     if (p.action === 'info' || p.action === 'img') {
       var auth = autenticar_(p.sessao);
       if (!auth.ok) return resposta_(auth);
-      return resposta_(p.action === 'info' ? buscarInfo_(p.url) : buscarImagem_(p.url));
+      return resposta_(p.action === 'info' ? buscarInfo_(p.url, auth.email) : buscarImagem_(p.url));
     }
 
     return resposta_({ ok: false, erro: 'acao' });
@@ -108,7 +108,8 @@ function baixarPagina_(url) {
   return { erro: 'rede' };
 }
 
-function buscarInfo_(url) {
+function buscarInfo_(url, email) {
+  if (hostShopee(url)) return buscarShopee_(url, email);
   if (!hostProdutoPermitido(url)) return { ok: false, erro: 'host' };
   var cache = CacheService.getScriptCache();
   var chave = 'i:' + md5Hex_(url);

@@ -146,13 +146,13 @@
   <div>
     <label for="link">Link de afiliado</label>
     <div class="linha">
-      <input id="link" type="url" inputmode="url" placeholder="https://meli.la/..." autocomplete="off">
+      <input id="link" type="url" inputmode="url" placeholder="Link do Mercado Livre ou da Shopee" autocomplete="off">
       <button id="gerar" type="button">Gerar</button>
     </div>
   </div>
   <div id="blocoProduto" hidden>
-    <label for="produto">Link do produto (o link curto não abriu o produto)</label>
-    <input id="produto" type="url" inputmode="url" placeholder="https://www.mercadolivre.com.br/..." autocomplete="off">
+    <label for="produto">Link da página do produto (o link curto não abriu o produto)</label>
+    <input id="produto" type="url" inputmode="url" placeholder="https://www.mercadolivre.com.br/... ou https://shopee.com.br/..." autocomplete="off">
   </div>
   <div id="aviso" role="status"></div>
   <img id="previa" alt="Imagem do produto" hidden>
@@ -371,7 +371,9 @@ function atualizarLegenda() {
 }
 
 function mostrarErro(r) {
-  if (r.erro === 'host') aviso('Cole um link do Mercado Livre.', true);
+  if (r.erro === 'host') aviso('Cole um link do Mercado Livre ou da Shopee.', true);
+  else if (r.erro === 'shopee') aviso('Não consegui consultar a Shopee agora. Tente de novo ou preencha à mão.', true);
+  else if (r.erro === 'cota') aviso('Limite de buscas na Shopee atingido hoje. Preencha à mão ou tente mais tarde.', true);
   else if (r.erro === 'link_curto') {
     $('blocoProduto').hidden = false;
     aviso('Não achei o produto nesse link. Cole também o link do produto.', true);

@@ -19,7 +19,7 @@ function ambiente(opts) {
     clientes: opts.clientes || CLIENTES_PADRAO,
     respostas: opts.respostas || [],
   });
-  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/Code.gs'], stubs);
+  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/Code.gs'], stubs);
   const chamar = (p) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(p) } }).getContent());
   return { stubs, ctx, chamar };
 }
@@ -234,4 +234,26 @@ test('exceção inesperada (planilha indisponível) devolve erro rede', () => {
   // afeta buscarCliente_ chamado de dentro de doPost → login_, sem precisar mudar o stub.
   amb.stubs.SpreadsheetApp.openById = () => { throw new Error('planilha fora do ar'); };
   assert.deepEqual(amb.chamar({ action: 'login', idToken: 'idtok' }), { ok: false, erro: 'rede' });
+});
+
+test('info com link da Shopee usa a API da Shopee com a cota do cliente logado', () => {
+  const amb = ambiente({
+    props: { SHOPEE_APP_ID: 'app', SHOPEE_SECRET: 'seg' },
+    respostas: [{ code: 200, body: JSON.stringify({ data: { productOfferV2: { nodes: [
+      { productName: 'Produto Shopee', imageUrl: 'https://down-br.img.susercontent.com/file/x', priceMin: '50', priceDiscountRate: 50 },
+    ] } } }) }],
+  });
+  const sessao = logado(amb);
+  const r = amb.chamar(info(sessao, 'https://shopee.com.br/Produto-i.10.20'));
+  assert.equal(r.ok, true);
+  assert.equal(r.titulo, 'Produto Shopee');
+  assert.equal(r.preco, 50);
+  assert.equal(r.precoAntigo, 100);
+  assert.equal(amb.stubs.chamadas.urls[0], 'https://open-api.affiliate.shopee.com.br/graphql');
+});
+
+test('img aceita imagem da Shopee (susercontent.com)', () => {
+  const amb = ambiente({ respostas: [{ code: 200, headers: { 'Content-Type': 'image/jpeg' }, body: 'img' }] });
+  const sessao = logado(amb);
+  assert.equal(amb.chamar(img(sessao, 'https://down-br.img.susercontent.com/file/x')).ok, true);
 });

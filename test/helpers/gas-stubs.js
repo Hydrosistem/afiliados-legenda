@@ -69,9 +69,11 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
 
   let uuidSeq = 0;
   const Utilities = {
-    DigestAlgorithm: { MD5: 'MD5' },
+    DigestAlgorithm: { MD5: 'MD5', SHA_256: 'SHA_256' },
+    Charset: { UTF_8: 'UTF_8' },
     computeDigest: (alg, str) =>
-      Array.from(crypto.createHash('md5').update(String(str)).digest()).map((b) => (b > 127 ? b - 256 : b)),
+      Array.from(crypto.createHash(alg === 'SHA_256' ? 'sha256' : 'md5').update(String(str), 'utf8').digest())
+        .map((b) => (b > 127 ? b - 256 : b)),
     base64Encode: (bytes) => Buffer.from(bytes.map((b) => b & 255)).toString('base64'),
     getUuid: () => { uuidSeq++; return 'uuid-' + uuidSeq; },
   };

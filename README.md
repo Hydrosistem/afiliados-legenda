@@ -1,4 +1,4 @@
-# Gerador de Post (Mercado Livre)
+# Gerador de Post (Mercado Livre e Shopee)
 
 Cola o link de afiliado, recebe a legenda pronta para o canal do WhatsApp.
 
@@ -25,7 +25,7 @@ Tela (precisa de `playwright`; usa o Chromium do próprio Playwright, ou aponte 
 
 ### 2. Backend (Apps Script)
 1. Acesse script.google.com e crie um projeto novo.
-2. Crie três arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs` e `src/Code.gs` (um arquivo para cada).
+2. Crie quatro arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs` e `src/Code.gs` (um arquivo para cada).
 3. Crie uma planilha com uma aba `Clientes`, cabeçalho `email | nome | ativo` e uma linha com o seu e-mail e `sim` em `ativo`.
 4. Configurações do projeto → Propriedades do script → adicione `PLANILHA_ID` (o ID da planilha, na URL entre `/d/` e `/edit`) e `GOOGLE_CLIENT_ID` (o Client ID copiado no passo 1).
 5. No editor, selecione a função `testarAcesso` e rode (▶). Autorize o acesso à planilha quando pedir; o resultado em Execuções deve mostrar seu nome e `ativo: true`.
@@ -52,6 +52,14 @@ Se o seu projeto ainda é da versão anterior (um `TOKEN` único compartilhado e
 3. Rode `testarAcesso` e autorize o acesso à planilha.
 4. Implantar → Gerenciar implantações → lápis → Versão: **Nova versão** → Implantar — e, **no mesmo momento**, publique a página nova (`git push origin main`). O servidor novo e a página antiga (ou vice-versa) não se entendem: não deixe um rodando sem o outro, nem que seja por alguns minutos.
 5. Só depois de confirmar que o login e a geração de legenda funcionam, apague `TOKEN` e `GEMINI_KEY` das Propriedades do script.
+
+### Shopee (opcional)
+Links da Shopee usam a Shopee Affiliate Open API com a **sua** credencial (o cliente não precisa de acesso à API):
+1. No painel de afiliados da Shopee → Open API, copie o AppID e a Senha.
+2. Propriedades do script: adicione `SHOPEE_APP_ID` e `SHOPEE_SECRET`. Nunca coloque esses valores no código.
+3. Rode a função `testarShopee` (em `shopee.gs`): o resultado deve trazer título e preço de um produto.
+
+Cada produto consultado fica 1 hora em cache e cada cliente pode fazer até 100 consultas da Shopee por dia. A legenda usa sempre o link de afiliado que o cliente colou; o app nunca gera links com o seu ID. O preço antigo é estimado pelo percentual de desconto da API.
 
 ## Clientes
 - **Adicionar um cliente:** nova linha na aba `Clientes` com o e-mail exato da conta Google usada na compra (inclusive os pontos, ex.: `maria.silva@gmail.com`), o nome e `sim` em `ativo`.
