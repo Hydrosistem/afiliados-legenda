@@ -27,13 +27,14 @@ Tela (precisa de `playwright` e `google-chrome`): `python3 test/e2e/tela.py`.
 Para atualizar depois: Implantar → Gerenciar implantações → lápis → Versão: **Nova versão** → Implantar.
 
 ### 2. Tela
-1. Em `web/index.html`, troque `COLE_AQUI_A_URL_DO_WEB_APP` pela URL do passo anterior.
+1. Em `web/index.html`, troque `GOOGLE_CLIENT_ID` pelo Client ID do OAuth do Google (o mesmo configurado no passo 4 do backend).
 2. Envie o repositório ao GitHub.
 3. No Cloudflare: Workers & Pages → Create → "Continue to Pages" → Import an existing Git repository. Branch `main`, preset `None`, build command `node --test`, output directory `web`.
 4. Cada push na `main` roda os testes e publica a pasta `web/` em https://gerador-de-post.pages.dev.
 
 ### 3. Celular
-Abra https://gerador-de-post.pages.dev no Chrome, informe o `TOKEN` na primeira vez e use "Instalar app".
+Abra https://gerador-de-post.pages.dev no Chrome e toque em "Entrar com Google" (sua conta precisa estar na planilha de Clientes, com `ativo` = sim). Depois use "Instalar app".
+Para a frase de efeito automática, abra ⚙️ "Sua chave do Gemini", crie uma chave grátis em https://aistudio.google.com/apikey e cole ali — a chave fica só nesse aparelho e vai direto para o Gemini. Sem chave, a frase tem que ser digitada à mão.
 
 ## Quando o ML mudar a página
 Se título ou preço vierem vazios, a tela deixa os campos editáveis. Para corrigir a extração, salve a página nova em `test/fixtures/real/` e ajuste `src/parse.gs`.

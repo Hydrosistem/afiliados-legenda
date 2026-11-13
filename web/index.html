@@ -42,6 +42,19 @@
   #aviso.erro { color: #b3261e; }
   #previa { width: 100%; max-height: 260px; object-fit: contain; background: #fff; border: 1px solid var(--borda); border-radius: 10px; }
   [hidden] { display: none !important; }
+  #conta { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 560px; margin: 10px auto 0; padding: 0 16px; font-size: 13px; color: var(--cinza); }
+  #conta button { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+  #telaLogin { max-width: 560px; margin: 28px auto; padding: 0 16px; display: grid; gap: 14px; text-align: center; }
+  #telaLogin p { color: var(--cinza); font-size: 14.5px; margin: 0; }
+  #botaoGoogle { display: flex; justify-content: center; }
+  #avisoLogin { min-height: 20px; font-size: 14px; color: var(--cinza); }
+  #avisoLogin.erro { color: #b3261e; }
+  #config { border: 1px solid var(--borda); border-radius: 10px; padding: 10px 14px 14px; background: #fff; }
+  #config summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+  #config label { margin-top: 10px; }
+  #config p { font-size: 12.5px; color: var(--cinza); margin: 10px 0 0; }
+  #config a { color: var(--texto); }
+  #statusChave { font-size: 13px; color: var(--cinza); margin: 10px 0 0; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -67,7 +80,19 @@
     <span style="color:#e91e63"><svg><use href="#sacola"/></svg></span>
   </div>
 </header>
-<main>
+
+<div id="conta" hidden>
+  <span>Olá, <strong id="nomeConta"></strong></span>
+  <button id="sair" type="button" class="sec">Sair</button>
+</div>
+
+<div id="telaLogin" hidden>
+  <p>Entre com a conta Google usada na compra.</p>
+  <div id="botaoGoogle"></div>
+  <div id="avisoLogin" role="status"></div>
+</div>
+
+<main id="app" hidden>
   <div>
     <label for="link">Link de afiliado</label>
     <div class="linha">
@@ -107,12 +132,31 @@
     <button id="copiar" type="button">Copiar legenda</button>
   </div>
   <button id="compartilhar" type="button" class="sec" disabled>Compartilhar imagem</button>
+
+  <details id="config">
+    <summary>⚙️ Sua chave do Gemini (frase automática)</summary>
+    <label for="chaveGemini">Chave do Gemini</label>
+    <input id="chaveGemini" type="password" placeholder="Cole sua chave aqui" autocomplete="off">
+    <div class="linha">
+      <button id="salvarChave" type="button">Salvar</button>
+      <button id="apagarChave" type="button" class="sec">Apagar</button>
+    </div>
+    <p id="statusChave"></p>
+    <p><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Criar chave grátis</a></p>
+    <p>A chave fica só neste aparelho e vai direto para o Gemini.</p>
+  </details>
 </main>
 
 <script src="caption.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="iniciarGoogle()"></script>
+<script src="frase.js"></script>
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbzH4coDv1Xl1mFLOnETUP5jRLA93kGO4EpQ6z12aaEuFSqrTOl9HTPe9nd4vAWe9AjbCg/exec';
-var LS_TOKEN = 'afl_token';
+var GOOGLE_CLIENT_ID = 'COLE_AQUI_O_CLIENT_ID';
+var LS_TOKEN_ANTIGO = 'afl_token';
+var LS_SESSAO = 'gp_sessao';
+var LS_NOME = 'gp_nome';
+var LS_GEMINI = 'gp_gemini';
 var imagemUrl = null;
 
 function $(id) { return document.getElementById(id); }
@@ -126,21 +170,74 @@ function aviso(msg, erro) {
   $('aviso').className = erro ? 'erro' : '';
 }
 
-function pedirToken() {
-  var t = lerLS(LS_TOKEN);
-  if (!t) {
-    t = window.prompt('Token de acesso:');
-    if (t) gravarLS(LS_TOKEN, t.trim());
-  }
-  return t ? t.trim() : null;
+function avisoLogin(msg, erro) {
+  $('avisoLogin').textContent = msg || '';
+  $('avisoLogin').className = erro ? 'erro' : '';
 }
 
+function mostrarTelaLogin() {
+  $('app').hidden = true;
+  $('conta').hidden = true;
+  $('telaLogin').hidden = false;
+}
+
+function mostrarApp(nome) {
+  $('telaLogin').hidden = true;
+  $('nomeConta').textContent = nome || '';
+  $('conta').hidden = false;
+  $('app').hidden = false;
+}
+
+// Apaga a sessão local e volta para a tela de login, com um aviso opcional.
+function voltarLogin(msg, erro) {
+  apagarLS(LS_SESSAO);
+  apagarLS(LS_NOME);
+  mostrarTelaLogin();
+  avisoLogin(msg, erro);
+}
+
+// POST simples (sem Content-Type, pra não disparar preflight de CORS). A sessão guardada
+// neste aparelho vai em todo pedido; o servidor confere e devolve 'sessao'/'sem_acesso' quando cai.
 async function api(params) {
-  var t = pedirToken();
-  if (!t) return { ok: false, erro: 'token' };
-  var qs = new URLSearchParams(Object.assign({ token: t }, params)).toString();
-  var resp = await fetch(API_URL + '?' + qs);
-  return resp.json();
+  var sessao = lerLS(LS_SESSAO);
+  var resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify(Object.assign({ sessao: sessao }, params)) });
+  var r = await resp.json();
+  if (!r.ok && (params.action === 'info' || params.action === 'img')) {
+    if (r.erro === 'sessao') {
+      voltarLogin('Sua sessão terminou (sua conta entrou em outro aparelho). Entre de novo.', true);
+    } else if (r.erro === 'sem_acesso') {
+      voltarLogin('Seu acesso foi desativado. Fale com quem te vendeu o Gerador de Post.', true);
+    }
+  }
+  return r;
+}
+
+// Chamado pelo onload do script do Google (<script ... onload="iniciarGoogle()">).
+function iniciarGoogle() {
+  if (lerLS(LS_SESSAO)) return;
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) return;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: aoLogar });
+  google.accounts.id.renderButton($('botaoGoogle'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'pt-BR' });
+}
+
+async function aoLogar(resp) {
+  avisoLogin('Entrando…');
+  var r;
+  try {
+    r = await api({ action: 'login', idToken: resp.credential });
+  } catch (e) {
+    avisoLogin('Não consegui confirmar seu login. Tente de novo.', true);
+    return;
+  }
+  if (r.ok) {
+    gravarLS(LS_SESSAO, r.sessao);
+    gravarLS(LS_NOME, r.nome);
+    mostrarApp(r.nome);
+  } else if (r.erro === 'sem_acesso') {
+    avisoLogin('Este e-mail não tem acesso. Fale com quem te vendeu o Gerador de Post.', true);
+  } else {
+    avisoLogin('Não consegui confirmar seu login. Tente de novo.', true);
+  }
 }
 
 function numeroParaCampo(n) {
@@ -177,8 +274,7 @@ function atualizarLegenda() {
 }
 
 function mostrarErro(r) {
-  if (r.erro === 'token') { apagarLS(LS_TOKEN); aviso('Token inválido. Tente de novo.', true); }
-  else if (r.erro === 'host') aviso('Cole um link do Mercado Livre.', true);
+  if (r.erro === 'host') aviso('Cole um link do Mercado Livre.', true);
   else if (r.erro === 'link_curto') {
     $('blocoProduto').hidden = false;
     aviso('Não achei o produto nesse link. Cole também o link do produto.', true);
@@ -195,19 +291,30 @@ async function gerar() {
   aviso('Buscando…');
   try {
     var r = await api({ action: 'info', url: origem });
+    if (r.erro === 'sessao' || r.erro === 'sem_acesso') return;
     if (!r.ok) { mostrarErro(r); atualizarLegenda(); return; }
     $('titulo').value = r.titulo || '';
     $('preco').value = numeroParaCampo(r.preco);
     $('precoAntigo').value = numeroParaCampo(r.precoAntigo);
-    $('frase').value = r.frase || '';
-    $('emoji').value = r.emoji || '';
     imagemUrl = r.imagem || null;
     $('previa').hidden = !imagemUrl;
     if (imagemUrl) $('previa').src = imagemUrl;
     $('compartilhar').disabled = !imagemUrl;
     reiniciarBlocoProduto();
-    aviso($('frase').value.trim() === '' ? 'Sem frase de efeito automática. Digite a frase abaixo.' : '');
     atualizarLegenda();
+
+    var titulo = $('titulo').value.trim();
+    if (!titulo) { aviso('Sem frase de efeito automática. Digite a frase abaixo.'); return; }
+    aviso('Criando a frase…');
+    var f = await gerarFrase(titulo, lerLS(LS_GEMINI) || '');
+    $('frase').value = f.frase || '';
+    $('emoji').value = f.emoji || '';
+    atualizarLegenda();
+    if (f.erro === 'sem_chave') aviso('Sem chave do Gemini: digite a frase ou configure a chave em ⚙️.');
+    else if (f.erro === 'chave') aviso('O Gemini recusou sua chave. Confira em ⚙️.', true);
+    else if (f.erro === 'limite') aviso('Limite do Gemini atingido. Tente daqui a pouco ou digite a frase.', true);
+    else if (f.erro === 'rede' || f.erro === 'formato') aviso('Não consegui criar a frase. Digite abaixo.', true);
+    else aviso('');
   } catch (e) {
     aviso('Falha de rede. Tente de novo ou preencha à mão.', true);
     atualizarLegenda();
@@ -232,6 +339,7 @@ async function compartilharImagem() {
   aviso('Baixando imagem…');
   try {
     var r = await api({ action: 'img', url: imagemUrl });
+    if (r.erro === 'sessao' || r.erro === 'sem_acesso') return;
     if (!r.ok) { aviso('Não consegui baixar a imagem. Abrindo em outra aba.', true); window.open(imagemUrl, '_blank'); return; }
     var bytes = Uint8Array.from(atob(r.base64), function (c) { return c.charCodeAt(0); });
     var arquivo = new File([bytes], 'produto.' + (r.mime.split('/')[1] || 'jpg'), { type: r.mime });
@@ -249,11 +357,49 @@ async function compartilharImagem() {
   }
 }
 
+function atualizarStatusChave() {
+  $('statusChave').textContent = lerLS(LS_GEMINI) ? 'Chave salva' : 'Sem chave';
+}
+
+function salvarChave() {
+  var v = $('chaveGemini').value.trim();
+  if (!v) return;
+  gravarLS(LS_GEMINI, v);
+  $('chaveGemini').value = '';
+  atualizarStatusChave();
+}
+
+function apagarChave() {
+  apagarLS(LS_GEMINI);
+  $('chaveGemini').value = '';
+  atualizarStatusChave();
+}
+
+function iniciar() {
+  apagarLS(LS_TOKEN_ANTIGO);
+  var sessao = lerLS(LS_SESSAO);
+  if (sessao) {
+    mostrarApp(lerLS(LS_NOME));
+  } else {
+    mostrarTelaLogin();
+  }
+  atualizarStatusChave();
+}
+
 $('gerar').addEventListener('click', gerar);
 $('copiar').addEventListener('click', copiarLegenda);
 $('compartilhar').addEventListener('click', compartilharImagem);
+$('salvarChave').addEventListener('click', salvarChave);
+$('apagarChave').addEventListener('click', apagarChave);
+$('sair').addEventListener('click', function () {
+  api({ action: 'sair' })['catch'](function () {});
+  voltarLogin('');
+});
 ['titulo', 'emoji', 'frase', 'preco', 'precoAntigo'].forEach(function (id) { $(id).addEventListener('input', atualizarLegenda); });
 $('link').addEventListener('input', function () { reiniciarBlocoProduto(); atualizarLegenda(); });
+
+iniciar();
+iniciarGoogle();
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 </script>
