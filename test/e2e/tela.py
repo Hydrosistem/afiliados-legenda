@@ -123,10 +123,13 @@ def sessao_derrubada_volta_ao_login(p):
 
 
 def falha_carregar_google(p):
+    # Não depende de qual caminho pega a falha primeiro (onerror do script, que pode disparar antes
+    # do script principal rodar, ou o prazo de ~8s de segurança): só espera o aviso aparecer, com
+    # tempo de sobra além dos 8s do prazo.
     b, pg, e = novo(p, sem_sessao=True, bloquear_google=True)
     pg.wait_for_function(
         "t => document.getElementById('avisoLogin').textContent.includes(t)",
-        arg='Não consegui carregar o login do Google')
+        arg='Não consegui carregar o login do Google', timeout=12000)
     b.close()
 
 

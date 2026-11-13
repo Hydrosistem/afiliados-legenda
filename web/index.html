@@ -148,7 +148,7 @@
 </main>
 
 <script src="caption.js"></script>
-<script id="scriptGoogle" src="https://accounts.google.com/gsi/client" async></script>
+<script id="scriptGoogle" src="https://accounts.google.com/gsi/client" async onerror="window.__gsiFalhou = true"></script>
 <script src="frase.js"></script>
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbzH4coDv1Xl1mFLOnETUP5jRLA93kGO4EpQ6z12aaEuFSqrTOl9HTPe9nd4vAWe9AjbCg/exec';
@@ -214,6 +214,10 @@ async function api(params) {
 }
 
 var googleCarregado = false;
+
+function mostrarFalhaGoogle() {
+  avisoLogin('Não consegui carregar o login do Google. Verifique a conexão e recarregue.', true);
+}
 
 // Chamado quando o script do Google termina de carregar, e de novo (sem custo) se ele já tiver
 // carregado. Sempre inicializa e desenha o botão, mesmo com sessão: a tela de login pode
@@ -414,16 +418,22 @@ $('link').addEventListener('input', function () { reiniciarBlocoProduto(); atual
 
 iniciar();
 
-// O script do Google é async: anexa os listeners aqui (depois de iniciarGoogle já existir, sem
-// depender de atributo onload) e cobre tanto o caso de já ter carregado quanto o de falhar.
+// O script do Google é async e pode terminar (com sucesso ou erro) antes desta linha rodar — por
+// isso o <script ... onerror="window.__gsiFalhou = true"> na tag (uma atribuição direta, sem
+// chamar função nenhuma, então nunca dá ReferenceError não importa a ordem). Aqui: anexa os
+// listeners pro caso comum, confere se a falha já aconteceu antes de chegarmos aqui, chama
+// iniciarGoogle() pro caso de já ter carregado com sucesso, e por fim um prazo de segurança —
+// se depois de ~8s ainda não apareceu nem sucesso nem erro (ex.: bloqueio silencioso), avisa.
 var scriptGoogle = $('scriptGoogle');
 if (scriptGoogle) {
   scriptGoogle.addEventListener('load', iniciarGoogle);
-  scriptGoogle.addEventListener('error', function () {
-    avisoLogin('Não consegui carregar o login do Google. Verifique a conexão e recarregue.', true);
-  });
+  scriptGoogle.addEventListener('error', mostrarFalhaGoogle);
 }
+if (window.__gsiFalhou) mostrarFalhaGoogle();
 iniciarGoogle();
+setTimeout(function () {
+  if (!googleCarregado && !$('telaLogin').hidden) mostrarFalhaGoogle();
+}, 8000);
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 </script>
