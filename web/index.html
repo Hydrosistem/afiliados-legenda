@@ -44,10 +44,26 @@
   [hidden] { display: none !important; }
   #conta { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 560px; margin: 10px auto 0; padding: 0 16px; font-size: 13px; color: var(--cinza); }
   #conta button { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
-  #telaLogin { max-width: 560px; margin: 28px auto; padding: 0 16px; display: grid; gap: 14px; text-align: center; }
+  #telaLogin { max-width: 560px; margin: 22px auto 32px; padding: 0 16px; display: grid; gap: 14px; text-align: center; }
   #telaLogin p { color: var(--cinza); font-size: 14.5px; margin: 0; }
+  #telaLogin h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; }
+  #telaLogin .apoio { font-size: 15px; line-height: 1.45; margin-top: -6px; }
+  #telaLogin .entrar { margin-top: 4px; }
   #botaoGoogle { display: flex; justify-content: center; }
   #avisoLogin { min-height: 20px; font-size: 14px; color: var(--cinza); }
+  .exemplo { display: grid; gap: 8px; justify-items: center; margin-top: 4px; }
+  .exemplo .etiqueta { font-size: 11.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--cinza); }
+  .conversa { width: 100%; max-width: 380px; background: #efeae2; border-radius: 16px; padding: 14px 14px 14px 22px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.04); }
+  .balao {
+    position: relative; text-align: left; background: #dcf8c6; color: #111; border-radius: 0 10px 10px 10px;
+    padding: 9px 12px 20px; font-size: 14.5px; line-height: 1.45; box-shadow: 0 1px 1.5px rgba(0,0,0,.13);
+  }
+  .balao::before { content: ""; position: absolute; top: 0; left: -8px; border-width: 0 10px 10px 0; border-style: solid; border-color: transparent #dcf8c6 transparent transparent; }
+  .balao div { margin: 0; }
+  .balao .hora { position: absolute; right: 10px; bottom: 5px; font-size: 11px; color: #667781; }
+  .passos { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+  .passos li { display: flex; align-items: center; gap: 7px; background: #fff; border: 1px solid var(--borda); border-radius: 999px; padding: 7px 13px 7px 7px; font-size: 13.5px; font-weight: 600; }
+  .passos b { width: 22px; height: 22px; border-radius: 50%; background: var(--amarelo); display: grid; place-items: center; font-size: 12px; }
   #avisoLogin.erro { color: #b3261e; }
   #config { border: 1px solid var(--borda); border-radius: 10px; padding: 10px 14px 14px; background: #fff; }
   #config summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
@@ -87,9 +103,28 @@
 </div>
 
 <div id="telaLogin" hidden>
-  <p>Entre com a conta Google usada na compra.</p>
+  <h2>Sua legenda de oferta pronta em segundos</h2>
+  <p class="apoio">Cole o link do produto e receba a legenda pronta para o seu canal do WhatsApp.</p>
+  <p class="entrar">Entre com a conta Google usada na compra.</p>
   <div id="botaoGoogle"></div>
   <div id="avisoLogin" role="status"></div>
+  <div class="exemplo">
+    <span class="etiqueta">Exemplo</span>
+    <div class="conversa" aria-label="Exemplo de legenda gerada">
+      <div class="balao">
+        <div><strong>Fone Bluetooth sem fio</strong> 🎧</div>
+        <div>de <s>R$ 199,90</s> por 💥 <strong>R$ 89,90</strong>💥</div>
+        <div>💗 <em>Som potente pra acompanhar o seu dia todo</em></div>
+        <div>🏠 link do produto</div>
+        <span class="hora">14:32</span>
+      </div>
+    </div>
+  </div>
+  <ol class="passos">
+    <li><b>1</b>Cole o link</li>
+    <li><b>2</b>Gere a legenda</li>
+    <li><b>3</b>Copie pro WhatsApp</li>
+  </ol>
 </div>
 
 <main id="app" hidden>
