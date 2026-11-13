@@ -1,10 +1,11 @@
 const crypto = require('node:crypto');
 
-// Fakes dos serviços do Apps Script usados por src/Code.gs.
+// Fakes dos serviços do Apps Script usados por src/Code.gs e src/acesso.gs.
 // respostas: fila de {code, headers?, body?, throw?}; cada UrlFetchApp.fetch consome uma.
-function makeStubs({ token = 'tok', props = {}, respostas = [] } = {}) {
+// clientes: linhas da aba "Clientes" (com cabeçalho) devolvidas por SpreadsheetApp.
+function makeStubs({ token = 'tok', props = {}, respostas = [], clientes = [['email', 'nome', 'ativo']] } = {}) {
   const propriedades = { TOKEN: token, ...props };
-  const chamadas = { fetch: 0, urls: [], opcoes: [], cachePut: [] };
+  const chamadas = { fetch: 0, urls: [], opcoes: [], cachePut: [], planilhaId: null };
   const fila = respostas.slice();
   const cache = new Map();
 
@@ -34,7 +35,26 @@ function makeStubs({ token = 'tok', props = {}, respostas = [] } = {}) {
   };
 
   const PropertiesService = {
-    getScriptProperties: () => ({ getProperty: (k) => (k in propriedades ? propriedades[k] : null) }),
+    getScriptProperties: () => ({
+      getProperty: (k) => (k in propriedades ? propriedades[k] : null),
+      setProperty: (k, v) => { propriedades[k] = v; },
+      deleteProperty: (k) => { delete propriedades[k]; },
+    }),
+  };
+
+  const SpreadsheetApp = {
+    openById: (id) => {
+      chamadas.planilhaId = id;
+      return {
+        getSheetByName: () => ({
+          getDataRange: () => ({ getValues: () => clientes }),
+        }),
+      };
+    },
+  };
+
+  const LockService = {
+    getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }),
   };
 
   const ContentService = {
@@ -47,14 +67,26 @@ function makeStubs({ token = 'tok', props = {}, respostas = [] } = {}) {
     }),
   };
 
+  let uuidSeq = 0;
   const Utilities = {
     DigestAlgorithm: { MD5: 'MD5' },
     computeDigest: (alg, str) =>
       Array.from(crypto.createHash('md5').update(String(str)).digest()).map((b) => (b > 127 ? b - 256 : b)),
     base64Encode: (bytes) => Buffer.from(bytes.map((b) => b & 255)).toString('base64'),
+    getUuid: () => { uuidSeq++; return 'uuid-' + uuidSeq; },
   };
 
-  return { UrlFetchApp, CacheService, PropertiesService, ContentService, Utilities, chamadas };
+  return {
+    UrlFetchApp,
+    CacheService,
+    PropertiesService,
+    SpreadsheetApp,
+    LockService,
+    ContentService,
+    Utilities,
+    chamadas,
+    propriedades,
+  };
 }
 
 module.exports = { makeStubs };
