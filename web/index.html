@@ -76,6 +76,11 @@
   #config label { margin-top: 10px; }
   #config p { font-size: 12.5px; color: var(--cinza); margin: 10px 0 0; }
   #config a { color: var(--texto); }
+  #config .guia { margin-top: 12px; border: 1px solid #f1d36b; background: #fffbe8; border-radius: 10px; padding: 8px 12px 12px; }
+  #config .guia summary { font-weight: 600; font-size: 14px; padding: 4px 0; }
+  #config .guia ol { margin: 10px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.5; display: grid; gap: 6px; }
+  #config .botao-guia { display: block; margin-top: 12px; text-align: center; padding: 11px 14px; border-radius: 10px; background: var(--amarelo); color: var(--texto); font-weight: 700; text-decoration: none; }
+  #config .dicas { margin: 12px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--cinza); line-height: 1.45; display: grid; gap: 4px; }
   #statusChave { font-size: 13px; color: var(--cinza); margin: 10px 0 0; font-weight: 600; }
 </style>
 </head>
@@ -187,7 +192,22 @@
       <button id="apagarChave" type="button" class="sec">Apagar</button>
     </div>
     <p id="statusChave"></p>
-    <p><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Criar chave grátis</a></p>
+    <details class="guia">
+      <summary>📘 Saiba como criar sua chave (grátis, 2 minutos)</summary>
+      <ol>
+        <li>Toque em <strong>Abrir o Google AI Studio</strong> (botão abaixo) e entre com sua conta Google. Pode ser a mesma que você usa aqui.</li>
+        <li>Se aparecer uma tela de boas-vindas ou de termos, aceite e continue.</li>
+        <li>Toque em <strong>Criar chave de API</strong> (em inglês: <em>Create API key</em>). Se pedir um projeto, escolha o que aparecer ou crie um novo, tanto faz.</li>
+        <li>Vai aparecer um código longo: essa é a sua chave. Toque em <strong>Copiar</strong>.</li>
+        <li>Volte aqui, cole no campo <strong>Chave do Gemini</strong> lá em cima e toque em <strong>Salvar</strong>. Pronto: vai aparecer “Chave salva”.</li>
+      </ol>
+      <a class="botao-guia" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Abrir o Google AI Studio ↗</a>
+      <ul class="dicas">
+        <li>É grátis e não pede cartão.</li>
+        <li>Não mande sua chave para ninguém: ela funciona como uma senha.</li>
+        <li>Se a frase não sair e aparecer aviso de limite, espere alguns minutos: o plano grátis tem um limite de uso por minuto e por dia.</li>
+      </ul>
+    </details>
     <p>A chave fica só neste aparelho e vai direto para o Gemini.</p>
   </details>
 </main>
