@@ -214,9 +214,10 @@ async function api(params) {
 }
 
 var googleCarregado = false;
+var MSG_FALHA_GOOGLE = 'Não consegui carregar o login do Google. Verifique a conexão e recarregue.';
 
 function mostrarFalhaGoogle() {
-  avisoLogin('Não consegui carregar o login do Google. Verifique a conexão e recarregue.', true);
+  avisoLogin(MSG_FALHA_GOOGLE, true);
 }
 
 // Chamado quando o script do Google termina de carregar, e de novo (sem custo) se ele já tiver
@@ -224,6 +225,9 @@ function mostrarFalhaGoogle() {
 // reaparecer depois (Sair, sessão derrubada) e o app instalado não tem botão de recarregar.
 function iniciarGoogle() {
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) return;
+  // Carregou, só que atrasado (depois do prazo de 8s já ter avisado a falha): tira só esse aviso,
+  // nunca outro (ex.: "Sua sessão terminou…" tem que sobreviver a um carregamento tardio).
+  if ($('avisoLogin').textContent === MSG_FALHA_GOOGLE) avisoLogin('');
   if (!googleCarregado) {
     google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: aoLogar });
     googleCarregado = true;

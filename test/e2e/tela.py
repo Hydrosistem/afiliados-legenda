@@ -133,6 +133,29 @@ def falha_carregar_google(p):
     b.close()
 
 
+def google_atrasado_limpa_so_o_proprio_aviso(p):
+    # Chama mostrarFalhaGoogle() direto (em vez de esperar os 8s) pra forçar o estado "já avisou a
+    # falha" e então simula a biblioteca terminando de carregar com sucesso.
+    b, pg, e = novo(p, sem_sessao=True)
+    pg.evaluate("mostrarFalhaGoogle()")
+    assert 'Não consegui carregar o login do Google' in pg.inner_text('#avisoLogin')
+    pg.evaluate("iniciarGoogle()")  # o fake já está carregado desde o goto() do novo()
+    pg.wait_for_function("document.getElementById('botaoGoogle').textContent.includes('BOTAO_GOOGLE_FAKE')")
+    assert pg.inner_text('#avisoLogin') == '', pg.inner_text('#avisoLogin')
+    b.close()
+
+
+def google_atrasado_nao_apaga_outro_aviso(p):
+    b, pg, e = novo(p, resp={"ok": False, "erro": "sessao"})
+    gerar(pg, 'https://meli.la/abc')
+    pg.wait_for_selector('#telaLogin:not([hidden])')
+    assert 'Sua sessão terminou' in pg.inner_text('#avisoLogin')
+    # simula a biblioteca "recarregando" tarde: não pode apagar o aviso de sessão caída.
+    pg.evaluate("googleCarregado = false; iniciarGoogle();")
+    assert 'Sua sessão terminou' in pg.inner_text('#avisoLogin'), pg.inner_text('#avisoLogin')
+    b.close()
+
+
 def acesso_desativado(p):
     b, pg, e = novo(p, resp={"ok": False, "erro": "sem_acesso"})
     gerar(pg, 'https://meli.la/abc')
@@ -271,7 +294,8 @@ falhas = []
 try:
     with sync_playwright() as p:
         for fn in [sem_sessao_mostra_login, sessao_derrubada_volta_ao_login, acesso_desativado,
-                   falha_carregar_google, sucesso_edicao, frase_com_chave, frase_sem_chave, chave_recusada,
+                   falha_carregar_google, google_atrasado_limpa_so_o_proprio_aviso, google_atrasado_nao_apaga_outro_aviso,
+                   sucesso_edicao, frase_com_chave, frase_sem_chave, chave_recusada,
                    link_curto, rede, falha_apaga_produto_anterior, link_do_produto_reinicia,
                    nova_geracao_troca_a_frase, sair, manifest]:
             try:
