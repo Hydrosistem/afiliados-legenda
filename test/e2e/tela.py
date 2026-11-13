@@ -15,6 +15,19 @@ T0 = '*FONE BLUETOOTH X* 🎧\n\nde ~R$199,90~ por 💥 *R$149,90*💥\n\n💗 _
 
 FRASE_PADRAO = {"frase": "Som potente pra animar seu dia!!", "emoji": "🎧"}
 
+# Substitui o script real do Google: expõe um google.accounts.id falso que só registra as
+# chamadas (initialize/renderButton) em window.__gsi, pra conferir que o botão é sempre redesenhado.
+GSI_FALSO = """
+window.__gsi = window.__gsi || [];
+window.google = { accounts: { id: {
+  initialize: function (cfg) { window.__gsi.push({ fn: 'initialize', cfg: cfg }); },
+  renderButton: function (el, opts) {
+    window.__gsi.push({ fn: 'renderButton', opts: opts });
+    el.textContent = 'BOTAO_GOOGLE_FAKE';
+  }
+} } };
+"""
+
 s = socket.socket(); s.bind(('127.0.0.1', 0)); PORTA = s.getsockname()[1]; s.close()
 servidor = subprocess.Popen([sys.executable, '-m', 'http.server', str(PORTA), '--directory', WEB],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -27,7 +40,7 @@ def resposta_gemini(estado):
     return 200, json.dumps({"candidates": [{"content": {"parts": [{"text": json.dumps(corpo)}]}}]})
 
 
-def novo(p, resp=OK, com_chave=False, sem_sessao=False, nome='Maria'):
+def novo(p, resp=OK, com_chave=False, sem_sessao=False, nome='Maria', bloquear_google=False):
     estado = {'resp': resp, 'abortar': False, 'urls': [], 'corpos': [], 'geminiHeaders': [],
               'geminiStatus': 200, 'geminiResp': None, 'erros': []}
     b = p.chromium.launch(executable_path=os.environ.get('CHROME_PATH'), args=['--no-sandbox'])
@@ -57,9 +70,15 @@ def novo(p, resp=OK, com_chave=False, sem_sessao=False, nome='Maria'):
         status, body = resposta_gemini(estado)
         r.fulfill(status=status, content_type='application/json', body=body)
 
+    def google_route(r):
+        if bloquear_google:
+            r.abort()
+        else:
+            r.fulfill(status=200, content_type='application/javascript', body=GSI_FALSO)
+
     pg.route('http://mock.local/**', api)
     pg.route('https://generativelanguage.googleapis.com/**', gemini)
-    pg.route('https://accounts.google.com/**', lambda r: r.fulfill(status=200, content_type='application/javascript', body=''))
+    pg.route('https://accounts.google.com/**', google_route)
     pg.route('https://http2.mlstatic.com/**', lambda r: r.fulfill(status=200, content_type='image/png', body=ICON))
     pg.goto(f'http://127.0.0.1:{PORTA}/index.html')
     if not sem_sessao:
@@ -98,6 +117,16 @@ def sessao_derrubada_volta_ao_login(p):
     pg.wait_for_selector('#telaLogin:not([hidden])')
     assert 'Sua sessão terminou' in pg.inner_text('#avisoLogin'), pg.inner_text('#avisoLogin')
     assert pg.evaluate("localStorage.getItem('gp_sessao')") is None
+    # o botão do Google tem que reaparecer: não há como recarregar a página no app instalado.
+    pg.wait_for_function("document.getElementById('botaoGoogle').textContent.includes('BOTAO_GOOGLE_FAKE')")
+    b.close()
+
+
+def falha_carregar_google(p):
+    b, pg, e = novo(p, sem_sessao=True, bloquear_google=True)
+    pg.wait_for_function(
+        "t => document.getElementById('avisoLogin').textContent.includes(t)",
+        arg='Não consegui carregar o login do Google')
     b.close()
 
 
@@ -224,6 +253,8 @@ def sair(p):
     pg.wait_for_selector('#telaLogin:not([hidden])')
     assert {"action": "sair", "sessao": "s1"} in e['corpos'], e['corpos']
     assert pg.evaluate("localStorage.getItem('gp_sessao')") is None
+    # idem: depois de Sair o botão do Google precisa estar desenhado de novo, sem reload.
+    pg.wait_for_function("document.getElementById('botaoGoogle').textContent.includes('BOTAO_GOOGLE_FAKE')")
     b.close()
 
 
@@ -237,7 +268,7 @@ falhas = []
 try:
     with sync_playwright() as p:
         for fn in [sem_sessao_mostra_login, sessao_derrubada_volta_ao_login, acesso_desativado,
-                   sucesso_edicao, frase_com_chave, frase_sem_chave, chave_recusada,
+                   falha_carregar_google, sucesso_edicao, frase_com_chave, frase_sem_chave, chave_recusada,
                    link_curto, rede, falha_apaga_produto_anterior, link_do_produto_reinicia,
                    nova_geracao_troca_a_frase, sair, manifest]:
             try:
