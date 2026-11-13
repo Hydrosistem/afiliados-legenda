@@ -46,9 +46,12 @@ test('precoAntigoPorDesconto estima o preço cheio', () => {
   assert.equal(ctx.precoAntigoPorDesconto(null, 30), null);
 });
 
-test('susercontent.com é imagem permitida', () => {
+test('imagens da Shopee (cf.shopee.com.br e susercontent.com) são permitidas', () => {
   const { ctx } = ambiente();
+  assert.equal(ctx.hostImagemPermitido('https://cf.shopee.com.br/file/br-11134207-abc'), true);
   assert.equal(ctx.hostImagemPermitido('https://down-br.img.susercontent.com/file/abc'), true);
+  assert.equal(ctx.hostImagemPermitido('https://shopee.com.br/file/abc'), false);
+  assert.equal(ctx.hostImagemPermitido('https://cf.shopee.com.br.evil.com/file/abc'), false);
 });
 
 test('link curto: segue o redirecionamento e consulta a API com assinatura correta', () => {
@@ -109,7 +112,7 @@ test('erro da API devolve shopee; limite da API (10030) devolve cota', () => {
   a = ambiente({ respostas: [{ code: 500, body: 'x' }] });
   assert.deepEqual(plain(a.ctx.buscarShopee_(PRODUTO, 'maria@gmail.com')), { ok: false, erro: 'shopee' });
   a = ambiente({ respostas: [api(null)] });
-  assert.deepEqual(plain(a.ctx.buscarShopee_(PRODUTO, 'maria@gmail.com')), { ok: false, erro: 'shopee' });
+  assert.deepEqual(plain(a.ctx.buscarShopee_(PRODUTO, 'maria@gmail.com')), { ok: false, erro: 'shopee_produto' });
   a = ambiente({ respostas: [{ throw: 'timeout' }] });
   assert.deepEqual(plain(a.ctx.buscarShopee_(PRODUTO, 'maria@gmail.com')), { ok: false, erro: 'shopee' });
 });

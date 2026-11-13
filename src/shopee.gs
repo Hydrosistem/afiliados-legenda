@@ -95,10 +95,12 @@ function consultarShopee_(ids) {
   }
   var nodes = json && json.data && json.data.productOfferV2 && json.data.productOfferV2.nodes;
   var node = nodes && nodes[0];
-  if (resp.getResponseCode() !== 200 || !node) {
-    console.warn('Shopee: HTTP ' + resp.getResponseCode() + ', produto ' + (node ? 'ok' : 'não encontrado'));
+  if (resp.getResponseCode() !== 200) {
+    console.warn('Shopee: HTTP ' + resp.getResponseCode());
     return { erro: 'shopee' };
   }
+  // Produto que não está nas ofertas de afiliado: a API responde sem nenhum item.
+  if (!node) return { erro: 'shopee_produto' };
 
   var preco = Number(node.priceMin);
   if (!(preco > 0)) preco = null;
@@ -148,5 +150,11 @@ function buscarShopee_(url, email) {
 
 // Para rodar no editor do Apps Script e conferir a credencial da Shopee (produto público de exemplo).
 function testarShopee() {
-  console.log(JSON.stringify(consultarShopee_({ shopId: '1262200225', itemId: '58167745429' })));
+  console.log(JSON.stringify(consultarShopee_({ shopId: '669207032', itemId: '49368310877' })));
+}
+
+// Troque o texto entre aspas por um link seu da Shopee antes de rodar no editor.
+function testarLinkShopee() {
+  var link = 'COLE_AQUI_UM_LINK_SEU_DA_SHOPEE';
+  console.log(JSON.stringify(buscarShopee_(link, 'teste@teste')));
 }

@@ -252,8 +252,8 @@ test('info com link da Shopee usa a API da Shopee com a cota do cliente logado',
   assert.equal(amb.stubs.chamadas.urls[0], 'https://open-api.affiliate.shopee.com.br/graphql');
 });
 
-test('img aceita imagem da Shopee (susercontent.com)', () => {
+test('img aceita imagem da Shopee (cf.shopee.com.br)', () => {
   const amb = ambiente({ respostas: [{ code: 200, headers: { 'Content-Type': 'image/jpeg' }, body: 'img' }] });
   const sessao = logado(amb);
-  assert.equal(amb.chamar(img(sessao, 'https://down-br.img.susercontent.com/file/x')).ok, true);
+  assert.equal(amb.chamar(img(sessao, 'https://cf.shopee.com.br/file/br-11134207-abc')).ok, true);
 });

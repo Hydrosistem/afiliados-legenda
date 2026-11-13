@@ -373,6 +373,7 @@ function atualizarLegenda() {
 function mostrarErro(r) {
   if (r.erro === 'host') aviso('Cole um link do Mercado Livre ou da Shopee.', true);
   else if (r.erro === 'shopee') aviso('Não consegui consultar a Shopee agora. Tente de novo ou preencha à mão.', true);
+  else if (r.erro === 'shopee_produto') aviso('Esse produto não aparece nas ofertas de afiliado da Shopee. Preencha os campos à mão.', true);
   else if (r.erro === 'cota') aviso('Limite de buscas na Shopee atingido hoje. Preencha à mão ou tente mais tarde.', true);
   else if (r.erro === 'link_curto') {
     $('blocoProduto').hidden = false;

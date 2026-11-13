@@ -1,7 +1,7 @@
 // Funções puras de extração e validação. Sem dependência de serviços do Apps Script.
 
 var HOSTS_PRODUTO_ = ['mercadolivre.com.br', 'produto.mercadolivre.com.br', 'mercadolivre.com', 'mercadolibre.com', 'meli.la'];
-var HOSTS_IMAGEM_ = ['mlstatic.com', 'susercontent.com'];
+var HOSTS_IMAGEM_ = ['mlstatic.com', 'susercontent.com', 'cf.shopee.com.br'];
 var HOSTS_SHOPEE_ = ['shopee.com.br', 'shope.ee'];
 
 function hostDe_(url) {

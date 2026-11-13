@@ -29,10 +29,11 @@ O vendedor tem acesso aprovado à Shopee Affiliate Open API.
    - O preço atual é `priceMin`.
    - O preço antigo é estimado como `priceMin / (1 - priceDiscountRate/100)`, arredondado para 2 casas. Isso só acontece com desconto maior que 0; sem desconto, não há preço antigo.
    - Os campos continuam editáveis na tela, como hoje.
-6. **Imagem:** o domínio `susercontent.com` entra na lista de imagens permitidas, para o botão "Compartilhar imagem" funcionar.
+6. **Imagem:** os domínios `cf.shopee.com.br` (o que a API devolve hoje) e `susercontent.com` entram na lista de imagens permitidas, para o botão "Compartilhar imagem" funcionar.
 7. **Erros novos na tela:**
    - O aviso de link de outra loja passa a dizer "Cole um link do Mercado Livre ou da Shopee."
    - Falha da API ou credencial ausente: "Não consegui consultar a Shopee agora. Tente de novo ou preencha à mão."
+   - Produto fora das ofertas de afiliado (API sem itens): "Esse produto não aparece nas ofertas de afiliado da Shopee. Preencha os campos à mão."
    - Limite da API ou cota do cliente: "Limite de buscas na Shopee atingido hoje. Preencha à mão ou tente mais tarde."
 
 ## Fora do escopo
