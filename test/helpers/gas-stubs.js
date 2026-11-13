@@ -3,8 +3,8 @@ const crypto = require('node:crypto');
 // Fakes dos serviços do Apps Script usados por src/Code.gs e src/acesso.gs.
 // respostas: fila de {code, headers?, body?, throw?}; cada UrlFetchApp.fetch consome uma.
 // clientes: linhas da aba "Clientes" (com cabeçalho) devolvidas por SpreadsheetApp.
-function makeStubs({ token = 'tok', props = {}, respostas = [], clientes = [['email', 'nome', 'ativo']] } = {}) {
-  const propriedades = { TOKEN: token, ...props };
+function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', 'ativo']] } = {}) {
+  const propriedades = { ...props };
   const chamadas = { fetch: 0, urls: [], opcoes: [], cachePut: [], planilhaId: null };
   const fila = respostas.slice();
   const cache = new Map();

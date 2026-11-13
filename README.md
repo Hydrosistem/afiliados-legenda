@@ -17,11 +17,12 @@ Tela (precisa de `playwright` e `google-chrome`): `python3 test/e2e/tela.py`.
 
 ### 1. Backend (Apps Script)
 1. Acesse script.google.com e crie um projeto novo.
-2. Crie três arquivos e cole o conteúdo de `src/parse.gs`, `src/frase.gs` e `src/Code.gs` (um arquivo para cada).
-3. Configurações do projeto → Propriedades do script → adicione `TOKEN` com uma senha longa que você escolher.
-4. (Frase de efeito automática) Crie uma chave grátis em aistudio.google.com → "Get API key" e adicione em Propriedades do script `GEMINI_KEY`. Opcional: `GEMINI_MODEL` para trocar o modelo (padrão `gemini-3.5-flash-lite`). Sem chave, a tela deixa a frase em branco para você digitar.
-5. Implantar → Nova implantação → App da Web. Executar como: **Eu**. Quem tem acesso: **Qualquer pessoa**.
-6. Autorize quando pedir. Copie a URL que termina em `/exec`.
+2. Crie três arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs` e `src/Code.gs` (um arquivo para cada).
+3. Crie uma planilha com uma aba `Clientes`, cabeçalho `email | nome | ativo` e uma linha com o seu e-mail e `sim` em `ativo`.
+4. Configurações do projeto → Propriedades do script → adicione `PLANILHA_ID` (o ID da planilha, na URL entre `/d/` e `/edit`) e `GOOGLE_CLIENT_ID` (o Client ID do OAuth do Google usado no login).
+5. No editor, selecione a função `testarAcesso` e rode (▶). Autorize o acesso à planilha quando pedir; o resultado em Execuções deve mostrar seu nome e `ativo: true`.
+6. Implantar → Nova implantação → App da Web. Executar como: **Eu**. Quem tem acesso: **Qualquer pessoa**.
+7. Autorize quando pedir. Copie a URL que termina em `/exec`.
 
 Para atualizar depois: Implantar → Gerenciar implantações → lápis → Versão: **Nova versão** → Implantar.
 

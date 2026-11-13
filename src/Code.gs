@@ -1,4 +1,4 @@
-// Web app do Apps Script. Depende de src/parse.gs e src/frase.gs (mesmo projeto).
+// Web app do Apps Script. Depende de src/parse.gs e src/acesso.gs (mesmo projeto).
 
 var UA_ = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 var MAX_REDIRECIONAMENTOS_ = 5;
@@ -9,12 +9,59 @@ function resposta_(obj) {
 }
 
 function doGet(e) {
-  var p = (e && e.parameter) || {};
-  var esperado = PropertiesService.getScriptProperties().getProperty('TOKEN');
-  if (!esperado || p.token !== esperado) return resposta_({ ok: false, erro: 'token' });
-  if (p.action === 'info') return resposta_(buscarInfo_(p.url));
-  if (p.action === 'img') return resposta_(buscarImagem_(p.url));
   return resposta_({ ok: false, erro: 'acao' });
+}
+
+// Confere a sessão e, a cada chamada, se o cliente continua ativo na planilha
+// (revogação imediata: desativar na planilha encerra o acesso na próxima chamada).
+function autenticar_(sessao) {
+  var email = emailDaSessao_(sessao);
+  if (!email) return { ok: false, erro: 'sessao' };
+  var cliente = buscarCliente_(email);
+  if (!cliente || !cliente.ativo) {
+    encerrarSessao_(sessao);
+    return { ok: false, erro: 'sem_acesso' };
+  }
+  return { ok: true, email: email, cliente: cliente };
+}
+
+function login_(idToken) {
+  var verificado = verificarIdToken_(idToken);
+  if (!verificado.ok) return { ok: false, erro: 'login' };
+  var cliente = buscarCliente_(verificado.email);
+  if (!cliente || !cliente.ativo) return { ok: false, erro: 'sem_acesso' };
+  var sessao = criarSessao_(verificado.email);
+  return { ok: true, sessao: sessao, nome: cliente.nome, email: verificado.email };
+}
+
+function doPost(e) {
+  try {
+    var p;
+    try {
+      p = JSON.parse(e && e.postData && e.postData.contents);
+    } catch (err) {
+      return resposta_({ ok: false, erro: 'acao' });
+    }
+    if (!p || typeof p !== 'object') return resposta_({ ok: false, erro: 'acao' });
+
+    if (p.action === 'login') return resposta_(login_(p.idToken));
+
+    if (p.action === 'sair') {
+      encerrarSessao_(p.sessao);
+      return resposta_({ ok: true });
+    }
+
+    if (p.action === 'info' || p.action === 'img') {
+      var auth = autenticar_(p.sessao);
+      if (!auth.ok) return resposta_(auth);
+      return resposta_(p.action === 'info' ? buscarInfo_(p.url) : buscarImagem_(p.url));
+    }
+
+    return resposta_({ ok: false, erro: 'acao' });
+  } catch (err) {
+    console.error('doPost: ' + err);
+    return resposta_({ ok: false, erro: 'rede' });
+  }
 }
 
 function cabecalho_(resp, nome) {
@@ -73,19 +120,15 @@ function buscarInfo_(url) {
   var d = parseProduto(pagina.resp.getContentText());
   if (d.titulo === null && d.preco === null) return { ok: false, erro: 'link_curto' };
 
-  var f = gerarFrase_(d.titulo);
   var out = {
     ok: true,
     titulo: d.titulo,
     preco: d.preco,
     precoAntigo: d.precoAntigo,
     imagem: d.imagem,
-    urlFinal: pagina.urlFinal,
-    frase: f.frase,
-    emoji: f.emoji
+    urlFinal: pagina.urlFinal
   };
-  // Frase vazia por falha do Gemini não fica em cache, para a próxima tentativa poder gerar.
-  if (f.frase !== '' || !chaveGemini_()) cache.put(chave, JSON.stringify(out), TTL_CACHE_);
+  cache.put(chave, JSON.stringify(out), TTL_CACHE_);
   return out;
 }
 
