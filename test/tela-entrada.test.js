@@ -38,3 +38,16 @@ test('botão do Google e aviso vêm antes do exemplo', () => {
   assert.ok(tela.indexOf('id="botaoGoogle"') < exemplo, 'botão depois do exemplo');
   assert.ok(tela.indexOf('id="avisoLogin"') < exemplo, 'aviso depois do exemplo');
 });
+
+test('tela de entrada avisa o aceite dos Termos de Uso, com link', () => {
+  assert.ok(tela.includes('Ao entrar, você concorda com os'), 'falta o aviso de aceite');
+  assert.ok(tela.includes('href="termos.html"'), 'falta o link dos termos');
+  assert.ok(tela.indexOf('href="termos.html"') < tela.indexOf('Fone Bluetooth sem fio'), 'aviso deve ficar junto do botão');
+});
+
+test('Termos de Uso trazem as cláusulas exigidas pela Shopee', () => {
+  const termos = fs.readFileSync(path.join(__dirname, '..', 'web', 'termos.html'), 'utf8');
+  assert.ok(termos.includes('terceira beneficiária'), 'Shopee como terceira beneficiária');
+  assert.ok(termos.includes('termina automaticamente se você descumprir'), 'encerramento por violação ou ordem da Shopee');
+  assert.ok(termos.includes('Não é afiliado, patrocinado, endossado'), 'aviso de independência');
+});
