@@ -26,6 +26,12 @@ test('tela de entrada apresenta o app', () => {
   for (const t of textos) assert.ok(tela.includes(t), `falta: ${t}`);
 });
 
+test('exemplo mostra a foto do produto acima da legenda', () => {
+  const foto = tela.indexOf('class="foto"');
+  assert.ok(foto > 0, 'falta a foto no exemplo');
+  assert.ok(foto < tela.indexOf('Fone Bluetooth sem fio'), 'foto depois da legenda');
+});
+
 test('botão do Google e aviso vêm antes do exemplo', () => {
   const exemplo = tela.indexOf('Fone Bluetooth sem fio');
   assert.ok(exemplo > 0);
