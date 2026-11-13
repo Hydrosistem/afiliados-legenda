@@ -4,7 +4,7 @@ Data: 2026-11-13. Objetivo: vender o Gerador de Post em compra única, com uso i
 
 ## Decisões
 
-1. **Login com Google.** A página mostra o botão "Entrar com Google" (Google Identity Services). O ID token vai ao servidor, que o confere no Google e libera o acesso só para e-mails cadastrados e ativos. Compartilhar o acesso exigiria entregar a senha do Gmail.
+1. **Login com Google.** A página mostra o botão "Entrar com Google" (Google Identity Services). O ID token vai ao servidor, que o confere no Google e libera o acesso só para e-mails cadastrados e ativos. Compartilhar normalmente exigiria entregar a própria conta Google, mas a sessão salva (`gp_sessao`) é um token sem validade: um comprador técnico poderia copiá-lo para outras pessoas até ser derrubado por um novo login. Expirar/rotacionar esse token é um possível reforço futuro.
 2. **Clientes numa planilha.** Aba `Clientes` de uma Planilha Google, colunas `email | nome | ativo`, linha 1 de cabeçalho. `ativo` aceita `sim`, `s`, `true`, `1` (sem diferenciar maiúsculas) ou caixa de seleção marcada; qualquer outro valor bloqueia. E-mail comparado sem espaços e em minúsculas. Acesso vitalício: o vendedor só desativa à mão (reembolso, abuso).
 3. **Até 2 sessões por cliente.** Cada login cria uma sessão; a terceira derruba a mais antiga. Sessão derrubada, cliente desativado ou removido: o próximo pedido devolve erro e a página volta à tela de login com uma mensagem clara.
 4. **Sem senha única.** O `TOKEN` some do servidor e da página.

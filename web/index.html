@@ -189,21 +189,31 @@ function mostrarApp(nome) {
   $('app').hidden = false;
 }
 
-// Apaga a sessão local e volta para a tela de login, com um aviso opcional.
+// Apaga a sessão local e volta para a tela de login, com um aviso opcional. Se o script do Google
+// nunca carregou (ou falhou) nesse meio tempo, o botão não vai aparecer — nesse caso mostra também
+// o aviso de falha do Google (como segunda linha, sem apagar o aviso que motivou a volta ao login).
 function voltarLogin(msg, erro) {
   apagarLS(LS_SESSAO);
   apagarLS(LS_NOME);
   mostrarTelaLogin();
-  avisoLogin(msg, erro);
+  var semGoogle = !googleCarregado || window.__gsiFalhou;
+  if (semGoogle) {
+    avisoLogin(msg ? msg + '\n' + MSG_FALHA_GOOGLE : MSG_FALHA_GOOGLE, true);
+  } else {
+    avisoLogin(msg, erro);
+  }
 }
 
 // POST simples (sem Content-Type, pra não disparar preflight de CORS). A sessão guardada
 // neste aparelho vai em todo pedido; o servidor confere e devolve 'sessao'/'sem_acesso' quando cai.
 async function api(params) {
-  var sessao = lerLS(LS_SESSAO);
-  var resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify(Object.assign({ sessao: sessao }, params)) });
+  var sessaoEnviada = lerLS(LS_SESSAO);
+  var resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify(Object.assign({ sessao: sessaoEnviada }, params)) });
   var r = await resp.json();
-  if (!r.ok && (params.action === 'info' || params.action === 'img')) {
+  // Só derruba a sessão se ela ainda for a mesma que foi enviada: entre o pedido sair e a resposta
+  // chegar, o usuário pode ter trocado de sessão (ex.: logou de novo) — uma resposta atrasada de
+  // 'sessao'/'sem_acesso' não pode apagar uma sessão mais nova que a que gerou esse pedido.
+  if (!r.ok && (params.action === 'info' || params.action === 'img') && lerLS(LS_SESSAO) === sessaoEnviada) {
     if (r.erro === 'sessao') {
       voltarLogin('Sua sessão terminou (sua conta entrou em outro aparelho). Entre de novo.', true);
     } else if (r.erro === 'sem_acesso') {
@@ -306,7 +316,6 @@ function mostrarErro(r) {
 async function gerar() {
   var link = $('link').value.trim();
   if (!link) { aviso('Cole o link de afiliado.', true); return; }
-  if (API_URL.indexOf('COLE_AQUI') === 0) { aviso('Configure API_URL no index.html.', true); return; }
   var origem = $('blocoProduto').hidden ? link : ($('produto').value.trim() || link);
   $('gerar').disabled = true;
   limparProduto();

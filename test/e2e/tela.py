@@ -2,7 +2,7 @@
 Uso: python3 test/e2e/tela.py   (precisa de playwright e Chrome; não faz parte do `node --test`)
 CHROME_PATH aponta pro executável do Chrome; sem ela, usa o Chromium do próprio Playwright.
 """
-import json, os, socket, subprocess, sys, traceback, urllib.parse
+import json, os, socket, subprocess, sys, time, traceback, urllib.parse
 from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,7 +44,10 @@ def novo(p, resp=OK, com_chave=False, sem_sessao=False, nome='Maria', bloquear_g
     estado = {'resp': resp, 'abortar': False, 'urls': [], 'corpos': [], 'geminiHeaders': [],
               'geminiStatus': 200, 'geminiResp': None, 'erros': []}
     b = p.chromium.launch(executable_path=os.environ.get('CHROME_PATH'), args=['--no-sandbox'])
-    pg = b.new_context(viewport={'width': 390, 'height': 844}).new_page()
+    # service_workers='block': o sw.js (respondWith(fetch(...))) assume o controle da página depois
+    # do reload() abaixo, e o page.route() do Playwright não intercepta pedidos que passam por um
+    # service worker — bloqueá-lo mantém os mocks em vigor mesmo após o reload.
+    pg = b.new_context(viewport={'width': 390, 'height': 844}, service_workers='block').new_page()
     pg.on('pageerror', lambda e: estado['erros'].append(str(e)))
 
     def api(r):
@@ -100,6 +103,17 @@ def gerar(pg, link=None):
 
 def esperar_aviso(pg, trecho):
     pg.wait_for_function("t => document.getElementById('aviso').textContent.includes(t)", arg=trecho)
+
+
+def esperar(condicao, timeout=5):
+    """Espera (polling) uma condição do lado do Python ficar verdadeira (ex.: um corpo de
+    pedido já capturado pelo handler de rota), em vez de checar na hora e cair numa corrida."""
+    fim = time.time() + timeout
+    while time.time() < fim:
+        if condicao():
+            return
+        time.sleep(0.05)
+    assert condicao()
 
 
 def sem_sessao_mostra_login(p):
@@ -277,6 +291,9 @@ def sair(p):
     b, pg, e = novo(p)
     pg.click('#sair')
     pg.wait_for_selector('#telaLogin:not([hidden])')
+    # a tela já volta ao login antes do POST de 'sair' (fire-and-forget) ser processado pelo mock:
+    # espera o corpo chegar em e['corpos'] em vez de checar na hora (corrida).
+    esperar(lambda: {"action": "sair", "sessao": "s1"} in e['corpos'])
     assert {"action": "sair", "sessao": "s1"} in e['corpos'], e['corpos']
     assert pg.evaluate("localStorage.getItem('gp_sessao')") is None
     # idem: depois de Sair o botão do Google precisa estar desenhado de novo, sem reload.
