@@ -37,20 +37,16 @@ Atualizado em 13 de novembro de 2026.
 
 - **Domínio pronto (2026-11-16):** `geradordepost.app.br` está registrado no Registro.br, com DNS no Cloudflare (nameservers `aurora` e `ryan`). Ele está ligado ao projeto do Pages, assim como o `www`, os dois com status Active e SSL.
 - **Login do Google:** o domínio foi autorizado nas origens do cliente OAuth e no Branding (página inicial, `/privacidade`, `/termos`, domínios autorizados).
-- **Registros de e-mail:** a zona no Cloudflare ainda tem 3 registros padrão do Registro.br que dizem "este domínio não envia e-mail":
-  - MX `.`
-  - TXT `v=spf1 -all`
-  - TXT `_dmarc` com `p=reject`
-
-  Eles precisam ser trocados quando o Brevo for configurado.
+- **E-mail (Brevo), pronto em 2026-11-16:**
+  - Domínio autenticado no Brevo, com DKIM `brevo1` e `brevo2` e o TXT `brevo-code`.
+  - Os registros padrão do Registro.br (MX `.`, `spf -all` e `_dmarc p=reject`) foram removidos. Entraram no lugar `v=spf1 include:spf.brevo.com ~all` e `_dmarc`: `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com`.
+  - O remetente **Gerador de Post `<nao-responda@geradordepost.app.br>`** está verificado, com DKIM e DMARC certos. O domínio não recebe e-mails (não há MX).
+  - Falta criar a chave da API do Brevo quando formos programar. Ela vai para a propriedade `BREVO_API_KEY` do script, nunca no chat ou no repositório.
 
 ## O que falta, em ordem
 
 1. ~~**Ligar o domínio ao site**~~: feito em 2026-11-16. Falta só atualizar o guia em PDF (`docs/guia`) com o endereço novo.
-2. **Brevo, para os e-mails do app:**
-   - O remetente vai ser `nao-responda@geradordepost.app.br`.
-   - Criar a conta grátis, autenticar o domínio (registros DNS no Cloudflare) e trocar os registros SPF/DMARC/MX padrão.
-   - A chave da API do Brevo vai só nas Propriedades do script.
+2. ~~**Brevo**~~: feito em 2026-11-16 (veja "Onde paramos"). Falta só a chave da API, que é criada na hora de programar o envio do código.
 3. **Kiwify:** produto "Gerador de Post" a **R$ 29,90**.
    - O webhook de venda aprovada preenche a planilha sozinho (nome, e-mail, `ativo = sim`).
    - Reembolso ou estorno muda para `ativo = não`.
