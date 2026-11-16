@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0d0f">
 <title>Gerador de Post · Legenda de oferta pronta em segundos</title>
 <meta name="description" content="Cole o link do Mercado Livre ou da Shopee e receba foto, preços e frase com IA prontos para o seu canal do WhatsApp. R$ 19,90, pagamento único.">
 <meta property="og:title" content="Gerador de Post: sua legenda de oferta pronta em segundos">
@@ -10,39 +11,42 @@
 <meta property="og:image" content="https://geradordepost.app.br/exemplo-fone.jpg">
 <link rel="icon" href="icon-192.png?v=2">
 <style>
-  :root { --amarelo: #ffe600; --amarelo2: #ffd000; --texto: #1f1f1f; --cinza: #5f5f5f; --borda: #e4e4e4; --fundo: #f6f6f6; --verde: #dcf8c6; }
+  :root { --ouro1: #ffe14d; --ouro2: #ffc400; --ouro: #ffd84d; --texto: #f2f2f2; --cinza: #a7a7ad; --borda: #2a2a30; --fundo: #0d0d0f; --fundo2: #121215; --card: #16161a; --verde: #dcf8c6; }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: #fff; line-height: 1.5; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: var(--fundo); line-height: 1.5; }
   a { color: inherit; }
   .wrap { max-width: 980px; margin: 0 auto; padding: 0 18px; }
-  section { padding: 44px 0; }
-  h2 { font-size: 26px; line-height: 1.2; letter-spacing: -.4px; margin: 0 0 8px; text-align: center; }
-  .sub { color: var(--cinza); text-align: center; margin: 0 auto 26px; max-width: 620px; }
+  section { padding: 52px 0; }
+  h2 { font-size: 28px; line-height: 1.2; letter-spacing: -.5px; margin: 0 0 8px; text-align: center; }
+  .sub { color: var(--cinza); text-align: center; margin: 0 auto 28px; max-width: 620px; }
+  .ouro { background: linear-gradient(90deg, #ffe680, var(--ouro2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
   /* Topo */
-  .topo { position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
-  .topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .topo { position: sticky; top: 0; z-index: 5; background: rgba(13,13,15,.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--borda); }
+  .topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
   .marca { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; }
   .marca img { width: 34px; height: 34px; border-radius: 10px; }
-  .entrar { font-size: 14px; color: var(--cinza); text-decoration: underline; }
+  .entrar { font-size: 14px; color: var(--cinza); text-decoration: none; border: 1px solid var(--borda); padding: 7px 12px; border-radius: 10px; }
+  .entrar:hover { color: var(--texto); border-color: #3a3a42; }
 
   /* Botão de compra */
-  .comprar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 26px; border-radius: 14px; background: var(--amarelo); color: var(--texto); font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 8px 20px rgba(200,160,0,.35); transition: transform .15s; }
-  .comprar:hover { transform: translateY(-2px); }
+  .comprar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 28px; border-radius: 14px; background: linear-gradient(180deg, var(--ouro1), var(--ouro2)); color: #111; font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 10px 28px rgba(255,196,0,.28); transition: transform .15s, box-shadow .15s; }
+  .comprar:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(255,196,0,.38); }
   .selos { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: 14px; color: var(--cinza); }
-  .selos span::before { content: "✓ "; color: #1a9e4b; font-weight: 800; }
+  .selos span::before { content: "\2713  "; color: var(--ouro); font-weight: 800; }
 
   /* Abertura */
-  .hero { background: linear-gradient(160deg, #fff7b8 0%, #ffe14d 45%, #ffc400 100%); padding: 40px 0 52px; }
-  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 34px; align-items: center; }
-  .etiqueta { display: inline-block; background: #1f1f1f; color: #ffe27a; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px; }
-  .hero h1 { font-size: 42px; line-height: 1.08; letter-spacing: -1.2px; margin: 14px 0 12px; }
-  .hero p.lead { font-size: 18px; margin: 0 0 22px; color: #3a3a3a; }
+  .hero { background: radial-gradient(90% 70% at 85% 0%, rgba(255,208,0,.18) 0%, rgba(13,13,15,0) 60%), radial-gradient(60% 50% at 0% 100%, rgba(255,196,0,.06) 0%, rgba(13,13,15,0) 70%), var(--fundo); padding: 48px 0 60px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 38px; align-items: center; }
+  .etiqueta { display: inline-block; background: rgba(255,214,0,.10); color: var(--ouro); border: 1px solid rgba(255,214,0,.35); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px; }
+  .hero h1 { font-size: 46px; line-height: 1.06; letter-spacing: -1.4px; margin: 16px 0 14px; }
+  .hero p.lead { font-size: 18px; margin: 0 0 24px; color: #c4c4ca; }
+  .hero p.lead strong { color: var(--texto); }
 
   /* Balão do WhatsApp */
-  .conversa { background: #efeae2; border-radius: 22px; padding: 18px 18px 18px 26px; box-shadow: 0 16px 40px rgba(120,80,0,.25); max-width: 380px; margin: 0 auto; }
-  .balao { position: relative; background: var(--verde); border-radius: 0 12px 12px 12px; padding: 8px 12px 22px; font-size: 15px; line-height: 1.45; box-shadow: 0 1px 1.5px rgba(0,0,0,.13); }
+  .conversa { background: #1b1b1f; border: 1px solid var(--borda); border-radius: 22px; padding: 18px 18px 18px 26px; box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 80px rgba(255,200,0,.07); max-width: 380px; margin: 0 auto; }
+  .balao { position: relative; background: var(--verde); color: #111; border-radius: 0 12px 12px 12px; padding: 8px 12px 22px; font-size: 15px; line-height: 1.45; box-shadow: 0 1px 1.5px rgba(0,0,0,.13); }
   .balao::before { content: ""; position: absolute; top: 0; left: -9px; border-width: 0 10px 10px 0; border-style: solid; border-color: transparent var(--verde) transparent transparent; }
   .balao img { display: block; width: calc(100% + 12px); margin: -2px -6px 8px; border-radius: 8px; aspect-ratio: 4/3; object-fit: cover; }
   .balao .hora { position: absolute; right: 10px; bottom: 5px; font-size: 11px; color: #667781; }
@@ -50,62 +54,69 @@
 
   /* Antes e depois */
   .compara { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .caixa { border-radius: 18px; padding: 22px; border: 1px solid var(--borda); }
-  .caixa h3 { margin: 0 0 12px; font-size: 19px; }
-  .caixa ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
-  .antes { background: #fff3f1; border-color: #f6c9c2; }
-  .antes li::before { content: "✗ "; color: #c53a2a; font-weight: 800; }
-  .depois { background: #f0fbf2; border-color: #bfe6c6; }
-  .depois li::before { content: "✓ "; color: #1a9e4b; font-weight: 800; }
-  .tempo { margin-top: 14px; font-weight: 800; }
+  .caixa { border-radius: 18px; padding: 24px; border: 1px solid var(--borda); background: var(--card); }
+  .caixa h3 { margin: 0 0 14px; font-size: 19px; }
+  .caixa ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; color: #c4c4ca; }
+  .antes { border-color: rgba(229,83,61,.30); }
+  .antes li::before { content: "\2717  "; color: #ef6a55; font-weight: 800; }
+  .depois { border-color: rgba(255,214,0,.40); background: linear-gradient(180deg, rgba(255,214,0,.07), rgba(255,214,0,0) 60%), var(--card); }
+  .depois li::before { content: "\2713  "; color: var(--ouro); font-weight: 800; }
+  .tempo { margin-top: 16px; font-weight: 800; }
+  .antes .tempo { color: #ef6a55; }
+  .depois .tempo { color: var(--ouro); }
 
   /* Como funciona */
-  .fundo-cinza { background: var(--fundo); }
-  .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .fundo-cinza { background: var(--fundo2); border-top: 1px solid #1c1c21; border-bottom: 1px solid #1c1c21; }
+  .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .passo { text-align: center; }
-  .passo .num { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--amarelo); font-weight: 800; margin-bottom: 8px; }
+  .passo .num { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(180deg, var(--ouro1), var(--ouro2)); color: #111; font-weight: 800; margin-bottom: 10px; }
   .passo h3 { margin: 0 0 6px; font-size: 18px; }
-  .passo p { margin: 0 0 12px; color: var(--cinza); font-size: 15px; }
-  .celular { border: 6px solid #1f1f1f; border-radius: 22px; overflow: hidden; background: #f5f5f5; box-shadow: 0 10px 26px rgba(0,0,0,.12); max-width: 260px; margin: 0 auto; }
+  .passo p { margin: 0 0 14px; color: var(--cinza); font-size: 15px; }
+  .celular { border: 6px solid #2a2a30; border-radius: 24px; overflow: hidden; background: #f5f5f5; box-shadow: 0 16px 36px rgba(0,0,0,.5); max-width: 260px; margin: 0 auto; }
   .celular img { display: block; width: 100%; }
 
   /* O que você recebe */
   .itens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .item { border: 1px solid var(--borda); border-radius: 16px; padding: 18px; background: #fff; }
+  .item { border: 1px solid var(--borda); border-radius: 16px; padding: 20px; background: var(--card); transition: border-color .15s; }
+  .item:hover { border-color: rgba(255,214,0,.35); }
   .item .emo { font-size: 26px; }
-  .item b { display: block; margin: 6px 0 4px; }
+  .item b { display: block; margin: 8px 0 4px; }
   .item span { color: var(--cinza); font-size: 14.5px; }
 
   /* Oferta */
-  .oferta { max-width: 520px; margin: 0 auto; text-align: center; border-radius: 24px; padding: 30px 24px; background: #1f1f1f; color: #fff; box-shadow: 0 18px 40px rgba(0,0,0,.18); }
-  .oferta .rotulo { color: #ffe27a; font-weight: 700; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
-  .oferta .preco { font-size: 56px; font-weight: 900; letter-spacing: -2px; margin: 4px 0 0; }
-  .oferta .preco small { font-size: 22px; letter-spacing: 0; vertical-align: super; margin-right: 4px; }
-  .oferta .pagto { color: #d9d9d9; margin: 0 0 20px; }
-  .oferta ul { text-align: left; margin: 0 auto 22px; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 360px; }
-  .oferta li::before { content: "✓ "; color: #ffe27a; font-weight: 800; }
+  .oferta { max-width: 520px; margin: 0 auto; text-align: center; border-radius: 26px; padding: 34px 26px; background: radial-gradient(120% 80% at 50% 0%, rgba(255,208,0,.14) 0%, rgba(22,22,26,0) 60%), var(--card); border: 1px solid rgba(255,214,0,.35); box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+  .oferta .rotulo { color: var(--ouro); font-weight: 700; font-size: 13px; letter-spacing: .8px; text-transform: uppercase; }
+  .oferta .preco { font-size: 60px; font-weight: 900; letter-spacing: -2px; margin: 6px 0 0; }
+  .oferta .preco small { font-size: 22px; letter-spacing: 0; vertical-align: super; margin-right: 4px; color: var(--cinza); }
+  .oferta .pagto { color: var(--cinza); margin: 0 0 22px; }
+  .oferta ul { text-align: left; margin: 0 auto 24px; padding: 0; list-style: none; display: grid; gap: 9px; max-width: 360px; }
+  .oferta li::before { content: "\2713  "; color: var(--ouro); font-weight: 800; }
   .oferta .comprar { width: 100%; }
-  .garantia { margin-top: 16px; font-size: 14px; color: #d9d9d9; }
+  .garantia { margin-top: 16px; font-size: 14px; color: var(--cinza); }
 
   /* Perguntas */
   .faq { max-width: 720px; margin: 0 auto; display: grid; gap: 10px; }
-  .faq details { border: 1px solid var(--borda); border-radius: 14px; padding: 14px 18px; background: #fff; }
+  .faq details { border: 1px solid var(--borda); border-radius: 14px; padding: 16px 18px; background: var(--card); }
+  .faq details[open] { border-color: rgba(255,214,0,.30); }
   .faq summary { cursor: pointer; font-weight: 700; }
+  .faq summary::marker { color: var(--ouro); }
   .faq details p { margin: 10px 0 2px; color: var(--cinza); }
 
-  .final { text-align: center; }
-  footer { border-top: 1px solid var(--borda); padding: 26px 0 36px; color: var(--cinza); font-size: 13px; text-align: center; }
+  .final { text-align: center; background: radial-gradient(70% 90% at 50% 100%, rgba(255,208,0,.12) 0%, rgba(13,13,15,0) 70%), var(--fundo); }
+  footer { border-top: 1px solid var(--borda); padding: 26px 0 36px; color: #7c7c84; font-size: 13px; text-align: center; }
   footer p { margin: 6px 0; }
+  footer a { color: var(--cinza); }
 
   @media (max-width: 760px) {
-    section { padding: 34px 0; }
-    .hero { padding: 26px 0 40px; }
+    section { padding: 40px 0; }
+    .hero { padding: 30px 0 44px; }
     .hero .wrap, .compara, .passos, .itens { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 32px; }
+    .hero h1 { font-size: 34px; }
     .hero p.lead { font-size: 16.5px; }
-    .comprar { width: 100%; }
+    .comprar { width: 100%; font-size: 16.5px; padding: 16px 14px; white-space: nowrap; }
     .passo .celular { max-width: 230px; }
-    h2 { font-size: 23px; }
+    h2 { font-size: 24px; }
+    .entrar { font-size: 13px; padding: 6px 10px; }
   }
 </style>
 </head>
@@ -122,7 +133,7 @@
   <div class="wrap">
     <div>
       <span class="etiqueta">Para afiliados do Mercado Livre e da Shopee</span>
-      <h1>Sua legenda de oferta pronta em segundos</h1>
+      <h1>Sua legenda de oferta <span class="ouro">pronta em segundos</span></h1>
       <p class="lead">Cole o link do produto e receba <strong>foto, preços e frase de efeito com IA</strong>, tudo formatado para o seu canal do WhatsApp.</p>
       <a class="comprar" data-checkout href="https://pay.kiwify.com.br/0EqbkK8">Quero o Gerador por R$ 19,90 →</a>
       <div class="selos"><span>Pagamento único</span><span>Acesso vitalício</span><span>IA inclusa</span></div>
