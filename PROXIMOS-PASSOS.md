@@ -66,9 +66,9 @@ Atualizado em 13 de novembro de 2026.
    - Ordem de publicação: **primeiro o servidor** (chave, arquivos, `testarIA`, Nova versão), **depois** o push do site.
    - Falta também atualizar o guia em PDF ("IA inclusa").
 4. ~~Entrada por código~~: incluída no item 3.
-5. **Página de vendas** (por exemplo, `/conhecer`):
-   - explica o Gerador, mostra exemplos e tem o botão "Quero o Gerador", que leva ao checkout da Kiwify;
-   - o link dela é o que o robô manda no direct.
+5. ~~**Página de vendas**~~: no ar em 2026-11-16 em `https://geradordepost.app.br/conhecer` (`web/conhecer.html`).
+   - Estilo preto premium, com os botões indo ao checkout `https://pay.kiwify.com.br/0EqbkK8`.
+   - É o link que o robô do ManyChat vai mandar no direct.
 6. **Vídeo promocional** para anúncios no Facebook e no Instagram, terminando com "comente **Gerar**".
 7. **ManyChat:** comentário "Gerar" no anúncio vira uma mensagem automática no direct com o link da página de vendas.
 8. **Pendências menores:**
