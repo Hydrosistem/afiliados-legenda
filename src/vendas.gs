@@ -78,20 +78,59 @@ function lerPedidoKiwify_(dados) {
   };
 }
 
+// Guarda um resumo do último aviso (sem nome, e-mail ou outros dados pessoais) para conferir no editor
+// com mostrarUltimoAvisoKiwify(): os registros de execuções do web app nem sempre aparecem no painel.
+function registrarAvisoKiwify_(info, dados) {
+  try {
+    var resumo = {
+      quando: new Date().toISOString(),
+      assinatura: info.assinatura,
+      resultado: info.resultado,
+      evento: dados ? String(dados.webhook_event_type || '') : '',
+      status: dados ? String(dados.order_status || '') : '',
+      formato: dados ? formatoDe_(dados) : null
+    };
+    PropertiesService.getScriptProperties().setProperty('kiwify:ultimo', JSON.stringify(resumo).slice(0, 8000));
+  } catch (err) {
+    console.warn('Kiwify: não consegui guardar o resumo: ' + err);
+  }
+}
+
+function lerJson_(texto) {
+  try {
+    var v = JSON.parse(texto);
+    return v && typeof v === 'object' ? v : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function pareceAvisoKiwify_(dados) {
+  return !!(dados && !dados.action && (dados.webhook_event_type || dados.order_status || dados.Customer));
+}
+
 function kiwifyWebhook_(e) {
   var corpo = (e.postData && e.postData.contents) || '';
-  if (!assinaturaKiwifyValida_(corpo, e.parameter && e.parameter.signature)) {
-    console.warn('Kiwify: assinatura inválida');
+  var dados = lerJson_(corpo);
+  var assinatura = e.parameter && e.parameter.signature;
+  if (!assinaturaKiwifyValida_(corpo, assinatura)) {
+    var motivo = !propriedade_('KIWIFY_TOKEN') ? 'sem_token' : (!assinatura ? 'sem_assinatura' : 'falhou');
+    console.warn('Kiwify: assinatura inválida (' + motivo + ')');
+    registrarAvisoKiwify_({ assinatura: motivo, resultado: 'assinatura' }, dados);
     return { ok: false, erro: 'assinatura' };
   }
-  var dados;
-  try {
-    dados = JSON.parse(corpo);
-  } catch (err) {
+  if (!dados) {
+    registrarAvisoKiwify_({ assinatura: 'ok', resultado: 'formato' }, null);
     return { ok: false, erro: 'formato' };
   }
   console.log('Kiwify (formato do aviso): ' + JSON.stringify(formatoDe_(dados)));
 
+  var r = processarAvisoKiwify_(dados);
+  registrarAvisoKiwify_({ assinatura: 'ok', resultado: r.acao || r.erro }, dados);
+  return r;
+}
+
+function processarAvisoKiwify_(dados) {
   var p = lerPedidoKiwify_(dados);
   if (p.tipo === 'outro') return { ok: true, acao: 'ignorado' };
   if (!p.email) return { ok: false, erro: 'formato' };
@@ -105,6 +144,11 @@ function kiwifyWebhook_(e) {
   desativarCliente_(p.email);
   encerrarSessoesDoEmail_(p.email);
   return { ok: true, acao: 'desativado' };
+}
+
+// Para rodar no editor: mostra o resumo do último aviso da Kiwify que chegou ao servidor.
+function mostrarUltimoAvisoKiwify() {
+  console.log(propriedade_('kiwify:ultimo') || 'Nenhum aviso da Kiwify chegou ainda.');
 }
 
 // ---------------- Planilha ----------------

@@ -37,7 +37,7 @@ function login_(idToken) {
 function doPost(e) {
   try {
     // Aviso de venda da Kiwify: corpo próprio, autenticado pela assinatura (vendas.gs).
-    if (e && e.parameter && e.parameter.origem === 'kiwify') return resposta_(kiwifyWebhook_(e));
+    if (e && e.parameter && (e.parameter.origem === 'kiwify' || e.parameter.signature)) return resposta_(kiwifyWebhook_(e));
 
     var p;
     try {
@@ -46,6 +46,10 @@ function doPost(e) {
       return resposta_({ ok: false, erro: 'acao' });
     }
     if (!p || typeof p !== 'object') return resposta_({ ok: false, erro: 'acao' });
+    if (pareceAvisoKiwify_(p)) {
+      registrarAvisoKiwify_({ assinatura: 'sem_assinatura', resultado: 'sem_origem' }, p);
+      return resposta_({ ok: false, erro: 'acao' });
+    }
 
     if (p.action === 'login') return resposta_(login_(p.idToken));
     if (p.action === 'codigo') return resposta_(pedirCodigo_(p.email));

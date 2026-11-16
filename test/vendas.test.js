@@ -208,3 +208,42 @@ test('cliente desativado entre o código e a entrada não entra', () => {
   a.ctx.SpreadsheetApp.openById('pid').getSheetByName('Clientes').getRange(2, 3).setValue('não');
   assert.deepEqual(a.chamar({ action: 'entrar', email: EMAIL, codigo: codigo }), { ok: false, erro: 'sem_compra' });
 });
+
+// ---------- Diagnóstico do último aviso ----------
+
+const ultimo = (a) => JSON.parse(a.stubs.propriedades['kiwify:ultimo']);
+
+test('guarda um resumo do último aviso, sem dados pessoais (assinatura falhou)', () => {
+  const a = ambiente();
+  a.webhook(APROVADO, 'assinatura-falsa');
+  const u = ultimo(a);
+  assert.equal(u.assinatura, 'falhou');
+  assert.equal(u.resultado, 'assinatura');
+  assert.equal(u.evento, 'order_approved');
+  assert.equal(u.status, 'paid');
+  assert.ok(u.quando);
+  assert.doesNotMatch(JSON.stringify(u), /Cliente Teste|example\.com|5500000000000/i);
+});
+
+test('resumo do último aviso: evento ignorado e compra ativada', () => {
+  let a = ambiente();
+  a.webhook(corpoCom({ order_status: 'waiting_payment', webhook_event_type: 'billet_created' }));
+  assert.equal(ultimo(a).resultado, 'ignorado');
+  assert.equal(ultimo(a).assinatura, 'ok');
+  a = ambiente({ respostas: [brevoOk()] });
+  a.webhook(APROVADO);
+  assert.equal(ultimo(a).resultado, 'ativado');
+});
+
+test('aviso da Kiwify sem ?origem=kiwify, mas com signature, também é tratado', () => {
+  const a = ambiente({ respostas: [brevoOk()] });
+  const r = JSON.parse(a.ctx.doPost({ parameter: { signature: assinar(APROVADO) }, postData: { contents: APROVADO } }).getContent());
+  assert.deepEqual(r, { ok: true, acao: 'ativado' });
+});
+
+test('aviso com cara de Kiwify sem origem nem assinatura fica registrado como sem_origem', () => {
+  const a = ambiente();
+  const r = JSON.parse(a.ctx.doPost({ parameter: {}, postData: { contents: APROVADO } }).getContent());
+  assert.deepEqual(r, { ok: false, erro: 'acao' });
+  assert.equal(ultimo(a).resultado, 'sem_origem');
+});
