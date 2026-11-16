@@ -36,14 +36,36 @@ function escaparHtml_(s) {
 
 // ---------------- Webhook da Kiwify ----------------
 
+// Confere a assinatura do aviso: HMAC-SHA1 (hex) do corpo com o token do webhook. Aceita também o corpo
+// em JSON compacto e HMAC-SHA256, e ignora espaços no token. Devolve o nome da variação que conferiu, ou ''.
+function conferirAssinaturaKiwify_(corpo, assinatura) {
+  var token = String(propriedade_('KIWIFY_TOKEN') || '').trim();
+  var recebido = String(assinatura || '').trim().toLowerCase();
+  if (!token || !recebido) return '';
+  var compacto = null;
+  try { compacto = JSON.stringify(JSON.parse(corpo)); } catch (err) {}
+  var variacoes = [
+    ['sha1_bruto', Utilities.MacAlgorithm.HMAC_SHA_1, corpo],
+    ['sha1_compacto', Utilities.MacAlgorithm.HMAC_SHA_1, compacto],
+    ['sha256_bruto', Utilities.MacAlgorithm.HMAC_SHA_256, corpo],
+    ['sha256_compacto', Utilities.MacAlgorithm.HMAC_SHA_256, compacto]
+  ];
+  for (var i = 0; i < variacoes.length; i++) {
+    if (variacoes[i][2] === null) continue;
+    var esperado = hexDe_(Utilities.computeHmacSignature(variacoes[i][1], variacoes[i][2], token));
+    if (iguaisSemPressa_(esperado, recebido)) return variacoes[i][0];
+  }
+  return '';
+}
+
 function assinaturaKiwifyValida_(corpo, assinatura) {
-  var token = propriedade_('KIWIFY_TOKEN');
-  if (!token || !assinatura) return false;
-  var esperado = hexDe_(Utilities.computeHmacSignature(Utilities.MacAlgorithm.HMAC_SHA_1, corpo, token));
-  var recebido = String(assinatura).trim().toLowerCase();
-  if (recebido.length !== esperado.length) return false;
+  return conferirAssinaturaKiwify_(corpo, assinatura) !== '';
+}
+
+function iguaisSemPressa_(a, b) {
+  if (a.length !== b.length) return false;
   var diferenca = 0;
-  for (var i = 0; i < esperado.length; i++) diferenca |= esperado.charCodeAt(i) ^ recebido.charCodeAt(i);
+  for (var i = 0; i < a.length; i++) diferenca |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diferenca === 0;
 }
 
@@ -58,7 +80,7 @@ function formatoDe_(v) {
   return v === null ? 'null' : typeof v;
 }
 
-// Formato do aviso a confirmar com o aviso de teste real da Kiwify.
+// Campos conferidos com o aviso de teste real da Kiwify (2026-11-16).
 function lerPedidoKiwify_(dados) {
   var c = dados.Customer || dados.customer || {};
   var nome = c.full_name || c.name || [c.first_name, c.last_name].filter(Boolean).join(' ');
@@ -86,6 +108,9 @@ function registrarAvisoKiwify_(info, dados) {
       quando: new Date().toISOString(),
       assinatura: info.assinatura,
       resultado: info.resultado,
+      conferiu: info.detalhes ? info.detalhes.conferiu : undefined,
+      assinaturaRecebida: info.detalhes ? info.detalhes.assinaturaRecebida : undefined,
+      token: info.detalhes ? info.detalhes.token : undefined,
       evento: dados ? String(dados.webhook_event_type || '') : '',
       status: dados ? String(dados.order_status || '') : '',
       formato: dados ? formatoDe_(dados) : null
@@ -113,20 +138,27 @@ function kiwifyWebhook_(e) {
   var corpo = (e.postData && e.postData.contents) || '';
   var dados = lerJson_(corpo);
   var assinatura = e.parameter && e.parameter.signature;
-  if (!assinaturaKiwifyValida_(corpo, assinatura)) {
-    var motivo = !propriedade_('KIWIFY_TOKEN') ? 'sem_token' : (!assinatura ? 'sem_assinatura' : 'falhou');
+  var conferiu = conferirAssinaturaKiwify_(corpo, assinatura);
+  var token = String(propriedade_('KIWIFY_TOKEN') || '');
+  var detalhes = {
+    conferiu: conferiu || 'nenhuma',
+    assinaturaRecebida: { tamanho: String(assinatura || '').length, hex: /^[0-9a-f]+$/i.test(String(assinatura || '').trim()) },
+    token: { tamanho: token.trim().length, espacoSobrando: token !== token.trim() }
+  };
+  if (!conferiu) {
+    var motivo = !token.trim() ? 'sem_token' : (!assinatura ? 'sem_assinatura' : 'falhou');
     console.warn('Kiwify: assinatura inválida (' + motivo + ')');
-    registrarAvisoKiwify_({ assinatura: motivo, resultado: 'assinatura' }, dados);
+    registrarAvisoKiwify_({ assinatura: motivo, resultado: 'assinatura', detalhes: detalhes }, dados);
     return { ok: false, erro: 'assinatura' };
   }
   if (!dados) {
-    registrarAvisoKiwify_({ assinatura: 'ok', resultado: 'formato' }, null);
+    registrarAvisoKiwify_({ assinatura: 'ok', resultado: 'formato', detalhes: detalhes }, null);
     return { ok: false, erro: 'formato' };
   }
   console.log('Kiwify (formato do aviso): ' + JSON.stringify(formatoDe_(dados)));
 
   var r = processarAvisoKiwify_(dados);
-  registrarAvisoKiwify_({ assinatura: 'ok', resultado: r.acao || r.erro }, dados);
+  registrarAvisoKiwify_({ assinatura: 'ok', resultado: r.acao || r.erro, detalhes: detalhes }, dados);
   return r;
 }
 

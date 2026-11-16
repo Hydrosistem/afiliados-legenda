@@ -85,9 +85,9 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
   const Utilities = {
     DigestAlgorithm: { MD5: 'MD5', SHA_256: 'SHA_256' },
     Charset: { UTF_8: 'UTF_8' },
-    MacAlgorithm: { HMAC_SHA_1: 'HMAC_SHA_1' },
+    MacAlgorithm: { HMAC_SHA_1: 'HMAC_SHA_1', HMAC_SHA_256: 'HMAC_SHA_256' },
     computeHmacSignature: (alg, valor, chave) =>
-      Array.from(crypto.createHmac('sha1', String(chave)).update(String(valor), 'utf8').digest())
+      Array.from(crypto.createHmac(alg === 'HMAC_SHA_256' ? 'sha256' : 'sha1', String(chave)).update(String(valor), 'utf8').digest())
         .map((b) => (b > 127 ? b - 256 : b)),
     computeDigest: (alg, str) =>
       Array.from(crypto.createHash(alg === 'SHA_256' ? 'sha256' : 'md5').update(String(str), 'utf8').digest())

@@ -6,8 +6,8 @@ const crypto = require('node:crypto');
 const { loadGs, plain } = require('./helpers/load-gs');
 const { makeStubs } = require('./helpers/gas-stubs');
 
-// Formato PROVISÓRIO do aviso da Kiwify (montado a partir de documentação de terceiros).
-// Trocar pelo aviso de teste real assim que o webhook for configurado.
+// Formato do aviso da Kiwify conferido com o aviso de teste real em 2026-11-16 (mesmos campos;
+// valores fictícios). O aviso real traz também Commissions, TrackingParameters, Subscription etc.
 const APROVADO = fs.readFileSync(path.join(__dirname, 'fixtures', 'kiwify-aprovado.json'), 'utf8');
 const TOKEN = 'tok12345678';
 const EMAIL = 'cliente.teste@example.com';
@@ -246,4 +246,32 @@ test('aviso com cara de Kiwify sem origem nem assinatura fica registrado como se
   const r = JSON.parse(a.ctx.doPost({ parameter: {}, postData: { contents: APROVADO } }).getContent());
   assert.deepEqual(r, { ok: false, erro: 'acao' });
   assert.equal(ultimo(a).resultado, 'sem_origem');
+});
+
+// ---------- Variações da assinatura ----------
+
+test('token salvo com espaço sobrando ainda confere', () => {
+  const a = ambiente({ props: { KIWIFY_TOKEN: '  ' + TOKEN + ' ' }, respostas: [brevoOk()] });
+  assert.deepEqual(a.webhook(APROVADO), { ok: true, acao: 'ativado' });
+  assert.equal(ultimo(a).conferiu, 'sha1_bruto');
+});
+
+test('assinatura calculada sobre o JSON compacto também confere', () => {
+  const bonito = JSON.stringify(JSON.parse(APROVADO), null, 2);
+  const compacto = JSON.stringify(JSON.parse(APROVADO));
+  const a = ambiente({ respostas: [brevoOk()] });
+  const sig = crypto.createHmac('sha1', TOKEN).update(compacto).digest('hex');
+  assert.deepEqual(a.webhook(bonito, sig), { ok: true, acao: 'ativado' });
+  assert.equal(ultimo(a).conferiu, 'sha1_compacto');
+});
+
+test('quando nada confere, o resumo diz o tamanho e o tipo da assinatura e do token, sem revelá-los', () => {
+  const a = ambiente();
+  a.webhook(APROVADO, 'ABCDEF0123456789abcdef0123456789abcdef01');
+  const u = ultimo(a);
+  assert.equal(u.conferiu, 'nenhuma');
+  assert.equal(u.assinaturaRecebida.tamanho, 40);
+  assert.equal(u.assinaturaRecebida.hex, true);
+  assert.equal(u.token.tamanho, TOKEN.length);
+  assert.doesNotMatch(JSON.stringify(u), new RegExp(TOKEN));
 });
