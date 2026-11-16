@@ -73,3 +73,14 @@ test('frase: sem chave própria usa a IA inclusa pelo servidor; com chave, o Gem
   assert.ok(html.includes('function criarFrase'), 'escolhe entre IA inclusa e chave própria');
   assert.ok(html.includes('inclusa'), 'explica que a IA já vem inclusa');
 });
+
+test('página de vendas: botões levam ao checkout da Kiwify e há link a partir da entrada', () => {
+  const vendas = fs.readFileSync(path.join(__dirname, '..', 'web', 'conhecer.html'), 'utf8');
+  const botoes = vendas.match(/data-checkout href="([^"]+)"/g) || [];
+  assert.ok(botoes.length >= 3, 'pelo menos 3 botões de compra');
+  for (const b of botoes) assert.ok(b.includes('https://pay.kiwify.com.br/'), b);
+  assert.ok(vendas.includes('19,90'));
+  assert.ok(vendas.includes('não é afiliado'), 'aviso de independência');
+  assert.ok(vendas.includes('href="termos.html"') && vendas.includes('href="privacidade.html"'));
+  assert.ok(tela.includes('href="conhecer"'), 'link da entrada para a página de vendas');
+});

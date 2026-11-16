@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerador de Post · Legenda de oferta pronta em segundos</title>
+<meta name="description" content="Cole o link do Mercado Livre ou da Shopee e receba foto, preços e frase com IA prontos para o seu canal do WhatsApp. R$ 19,90, pagamento único.">
+<meta property="og:title" content="Gerador de Post: sua legenda de oferta pronta em segundos">
+<meta property="og:description" content="Cole o link e receba foto, preços e frase com IA prontos para o WhatsApp. Pagamento único, acesso vitalício.">
+<meta property="og:image" content="https://geradordepost.app.br/exemplo-fone.jpg">
+<link rel="icon" href="icon-192.png?v=2">
+<style>
+  :root { --amarelo: #ffe600; --amarelo2: #ffd000; --texto: #1f1f1f; --cinza: #5f5f5f; --borda: #e4e4e4; --fundo: #f6f6f6; --verde: #dcf8c6; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: #fff; line-height: 1.5; }
+  a { color: inherit; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 18px; }
+  section { padding: 44px 0; }
+  h2 { font-size: 26px; line-height: 1.2; letter-spacing: -.4px; margin: 0 0 8px; text-align: center; }
+  .sub { color: var(--cinza); text-align: center; margin: 0 auto 26px; max-width: 620px; }
+
+  /* Topo */
+  .topo { position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--borda); }
+  .topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .marca { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; }
+  .marca img { width: 34px; height: 34px; border-radius: 10px; }
+  .entrar { font-size: 14px; color: var(--cinza); text-decoration: underline; }
+
+  /* Botão de compra */
+  .comprar { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 26px; border-radius: 14px; background: var(--amarelo); color: var(--texto); font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 8px 20px rgba(200,160,0,.35); transition: transform .15s; }
+  .comprar:hover { transform: translateY(-2px); }
+  .selos { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: 14px; color: var(--cinza); }
+  .selos span::before { content: "✓ "; color: #1a9e4b; font-weight: 800; }
+
+  /* Abertura */
+  .hero { background: linear-gradient(160deg, #fff7b8 0%, #ffe14d 45%, #ffc400 100%); padding: 40px 0 52px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 34px; align-items: center; }
+  .etiqueta { display: inline-block; background: #1f1f1f; color: #ffe27a; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px; }
+  .hero h1 { font-size: 42px; line-height: 1.08; letter-spacing: -1.2px; margin: 14px 0 12px; }
+  .hero p.lead { font-size: 18px; margin: 0 0 22px; color: #3a3a3a; }
+
+  /* Balão do WhatsApp */
+  .conversa { background: #efeae2; border-radius: 22px; padding: 18px 18px 18px 26px; box-shadow: 0 16px 40px rgba(120,80,0,.25); max-width: 380px; margin: 0 auto; }
+  .balao { position: relative; background: var(--verde); border-radius: 0 12px 12px 12px; padding: 8px 12px 22px; font-size: 15px; line-height: 1.45; box-shadow: 0 1px 1.5px rgba(0,0,0,.13); }
+  .balao::before { content: ""; position: absolute; top: 0; left: -9px; border-width: 0 10px 10px 0; border-style: solid; border-color: transparent var(--verde) transparent transparent; }
+  .balao img { display: block; width: calc(100% + 12px); margin: -2px -6px 8px; border-radius: 8px; aspect-ratio: 4/3; object-fit: cover; }
+  .balao .hora { position: absolute; right: 10px; bottom: 5px; font-size: 11px; color: #667781; }
+  .balao a { color: #027eb5; text-decoration: none; }
+
+  /* Antes e depois */
+  .compara { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .caixa { border-radius: 18px; padding: 22px; border: 1px solid var(--borda); }
+  .caixa h3 { margin: 0 0 12px; font-size: 19px; }
+  .caixa ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+  .antes { background: #fff3f1; border-color: #f6c9c2; }
+  .antes li::before { content: "✗ "; color: #c53a2a; font-weight: 800; }
+  .depois { background: #f0fbf2; border-color: #bfe6c6; }
+  .depois li::before { content: "✓ "; color: #1a9e4b; font-weight: 800; }
+  .tempo { margin-top: 14px; font-weight: 800; }
+
+  /* Como funciona */
+  .fundo-cinza { background: var(--fundo); }
+  .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .passo { text-align: center; }
+  .passo .num { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--amarelo); font-weight: 800; margin-bottom: 8px; }
+  .passo h3 { margin: 0 0 6px; font-size: 18px; }
+  .passo p { margin: 0 0 12px; color: var(--cinza); font-size: 15px; }
+  .celular { border: 6px solid #1f1f1f; border-radius: 22px; overflow: hidden; background: #f5f5f5; box-shadow: 0 10px 26px rgba(0,0,0,.12); max-width: 260px; margin: 0 auto; }
+  .celular img { display: block; width: 100%; }
+
+  /* O que você recebe */
+  .itens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .item { border: 1px solid var(--borda); border-radius: 16px; padding: 18px; background: #fff; }
+  .item .emo { font-size: 26px; }
+  .item b { display: block; margin: 6px 0 4px; }
+  .item span { color: var(--cinza); font-size: 14.5px; }
+
+  /* Oferta */
+  .oferta { max-width: 520px; margin: 0 auto; text-align: center; border-radius: 24px; padding: 30px 24px; background: #1f1f1f; color: #fff; box-shadow: 0 18px 40px rgba(0,0,0,.18); }
+  .oferta .rotulo { color: #ffe27a; font-weight: 700; font-size: 14px; letter-spacing: .5px; text-transform: uppercase; }
+  .oferta .preco { font-size: 56px; font-weight: 900; letter-spacing: -2px; margin: 4px 0 0; }
+  .oferta .preco small { font-size: 22px; letter-spacing: 0; vertical-align: super; margin-right: 4px; }
+  .oferta .pagto { color: #d9d9d9; margin: 0 0 20px; }
+  .oferta ul { text-align: left; margin: 0 auto 22px; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 360px; }
+  .oferta li::before { content: "✓ "; color: #ffe27a; font-weight: 800; }
+  .oferta .comprar { width: 100%; }
+  .garantia { margin-top: 16px; font-size: 14px; color: #d9d9d9; }
+
+  /* Perguntas */
+  .faq { max-width: 720px; margin: 0 auto; display: grid; gap: 10px; }
+  .faq details { border: 1px solid var(--borda); border-radius: 14px; padding: 14px 18px; background: #fff; }
+  .faq summary { cursor: pointer; font-weight: 700; }
+  .faq details p { margin: 10px 0 2px; color: var(--cinza); }
+
+  .final { text-align: center; }
+  footer { border-top: 1px solid var(--borda); padding: 26px 0 36px; color: var(--cinza); font-size: 13px; text-align: center; }
+  footer p { margin: 6px 0; }
+
+  @media (max-width: 760px) {
+    section { padding: 34px 0; }
+    .hero { padding: 26px 0 40px; }
+    .hero .wrap, .compara, .passos, .itens { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+    .hero p.lead { font-size: 16.5px; }
+    .comprar { width: 100%; }
+    .passo .celular { max-width: 230px; }
+    h2 { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="wrap">
+    <a class="marca" href="#"><img src="icon-192.png?v=2" alt="" width="34" height="34">Gerador de Post</a>
+    <a class="entrar" href="./">Já comprei · Entrar</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="etiqueta">Para afiliados do Mercado Livre e da Shopee</span>
+      <h1>Sua legenda de oferta pronta em segundos</h1>
+      <p class="lead">Cole o link do produto e receba <strong>foto, preços e frase de efeito com IA</strong>, tudo formatado para o seu canal do WhatsApp.</p>
+      <a class="comprar" data-checkout href="https://pay.kiwify.com.br/0EqbkK8">Quero o Gerador por R$ 19,90 →</a>
+      <div class="selos"><span>Pagamento único</span><span>Acesso vitalício</span><span>IA inclusa</span></div>
+    </div>
+    <div>
+      <div class="conversa" aria-label="Exemplo de postagem gerada">
+        <div class="balao">
+          <img src="exemplo-fone.jpg" alt="Foto do produto: fone de ouvido">
+          <div><strong>FONE BLUETOOTH SEM FIO</strong> 🎧</div>
+          <div>de <s>R$199,90</s> por 💥 <strong>R$89,90</strong>💥</div>
+          <div>💗 <em>Som potente pra acompanhar o seu dia todo</em></div>
+          <div>🏠 <a>https://meli.la/…</a></div>
+          <span class="hora">14:32</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Chega de montar post na mão</h2>
+    <p class="sub">Cada oferta que você posta leva vários passos chatos. O Gerador faz todos de uma vez.</p>
+    <div class="compara">
+      <div class="caixa antes">
+        <h3>Sem o Gerador</h3>
+        <ul>
+          <li>Copiar o título e encurtar</li>
+          <li>Conferir preço antigo e preço novo</li>
+          <li>Pensar numa frase que chame atenção</li>
+          <li>Formatar negrito, riscado e emojis</li>
+          <li>Salvar a foto do produto</li>
+        </ul>
+        <div class="tempo">Minutos por post</div>
+      </div>
+      <div class="caixa depois">
+        <h3>Com o Gerador</h3>
+        <ul>
+          <li>Cola o link de afiliado</li>
+          <li>Toca em Gerar</li>
+          <li>Foto, preços, frase com IA e o seu link, prontos</li>
+          <li>Copia e posta no canal</li>
+        </ul>
+        <div class="tempo">Segundos por post</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="fundo-cinza">
+  <div class="wrap">
+    <h2>Como funciona</h2>
+    <p class="sub">Funciona no celular e no computador, e dá para instalar como aplicativo.</p>
+    <div class="passos">
+      <div class="passo">
+        <span class="num">1</span>
+        <h3>Cole o link</h3>
+        <p>O seu link de afiliado do Mercado Livre ou da Shopee.</p>
+        <div class="celular"><img src="vendas/tela-link.jpg" alt="Tela com o link colado" loading="lazy"></div>
+      </div>
+      <div class="passo">
+        <span class="num">2</span>
+        <h3>Gere</h3>
+        <p>Foto, título, preços e frase com IA aparecem na hora. Tudo editável.</p>
+        <div class="celular"><img src="vendas/tela-campos.jpg" alt="Tela com os dados do produto" loading="lazy"></div>
+      </div>
+      <div class="passo">
+        <span class="num">3</span>
+        <h3>Copie e poste</h3>
+        <p>Legenda formatada para o WhatsApp e a foto pronta para compartilhar.</p>
+        <div class="celular"><img src="vendas/tela-legenda.jpg" alt="Tela com a legenda pronta" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>O que você recebe</h2>
+    <p class="sub">Um único pagamento. Sem mensalidade.</p>
+    <div class="itens">
+      <div class="item"><div class="emo">🛒</div><b>Mercado Livre e Shopee</b><span>Funciona com os seus links de afiliado, inclusive os curtos.</span></div>
+      <div class="item"><div class="emo">✨</div><b>Frase com IA inclusa</b><span>Frase de efeito e emoji criados automaticamente, sem configurar nada.</span></div>
+      <div class="item"><div class="emo">🖼️</div><b>Foto pronta</b><span>Compartilhe a imagem do produto direto no WhatsApp.</span></div>
+      <div class="item"><div class="emo">📱</div><b>Celular e computador</b><span>Instale como app no Android, iPhone ou PC.</span></div>
+      <div class="item"><div class="emo">📘</div><b>Guia completo</b><span>Passo a passo do primeiro acesso até a postagem no canal.</span></div>
+      <div class="item"><div class="emo">♾️</div><b>Acesso vitalício</b><span>Pague uma vez e use sempre, com as atualizações incluídas.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fundo-cinza" id="oferta">
+  <div class="wrap">
+    <div class="oferta">
+      <div class="rotulo">Gerador de Post · acesso vitalício</div>
+      <div class="preco"><small>R$</small>19,90</div>
+      <p class="pagto">pagamento único, sem mensalidade</p>
+      <ul>
+        <li>Legendas ilimitadas</li>
+        <li>Mercado Livre e Shopee</li>
+        <li>Frase com IA inclusa</li>
+        <li>Acesso liberado na hora, por e-mail</li>
+      </ul>
+      <a class="comprar" data-checkout href="https://pay.kiwify.com.br/0EqbkK8">Quero o Gerador agora →</a>
+      <div class="garantia">🔒 Pagamento seguro pela Kiwify (Pix ou cartão) · Garantia de 7 dias</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Perguntas frequentes</h2>
+    <div class="faq" style="margin-top:22px">
+      <details><summary>Tem mensalidade?</summary><p>Não. Você paga R$ 19,90 uma única vez e usa para sempre.</p></details>
+      <details><summary>Preciso entender de inteligência artificial?</summary><p>Não. A frase com IA já vem inclusa e funciona sozinha quando você toca em Gerar. Se um dia quiser usar sem o limite diário, dá para conectar uma chave grátis do Google, mas é opcional.</p></details>
+      <details><summary>Funciona com a Shopee?</summary><p>Sim. Funciona com links de afiliado do Mercado Livre e da Shopee, inclusive os links curtos.</p></details>
+      <details><summary>Como recebo o acesso?</summary><p>Assim que o pagamento é aprovado, você recebe um e-mail com o link. Para entrar, digite o e-mail da compra e o código de 6 números que chega no seu e-mail. Sem senha para decorar.</p></details>
+      <details><summary>Em quantos aparelhos posso usar?</summary><p>Em até 2 aparelhos ao mesmo tempo, por exemplo o celular e o computador.</p></details>
+      <details><summary>E se eu não gostar?</summary><p>Você tem 7 dias de garantia: se não gostar, pede o reembolso direto pela Kiwify.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final fundo-cinza">
+  <div class="wrap">
+    <h2>Comece a postar mais rápido hoje</h2>
+    <p class="sub">R$ 19,90 uma vez. Acesso liberado na hora.</p>
+    <a class="comprar" data-checkout href="https://pay.kiwify.com.br/0EqbkK8">Quero o Gerador por R$ 19,90 →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><a href="termos.html">Termos de Uso</a> · <a href="privacidade.html">Política de Privacidade</a> · <a href="./">Entrar</a></p>
+    <p>O Gerador de Post é um produto independente e não é afiliado, patrocinado ou endossado pelo Mercado Livre, pela Shopee, pelo WhatsApp ou pelo Google.</p>
+  </div>
+</footer>
+
+<script>
+  // Link do checkout da Kiwify: trocar só aqui.
+  var CHECKOUT_URL = 'https://pay.kiwify.com.br/0EqbkK8';
+  if (/^https:\/\//.test(CHECKOUT_URL)) {
+    document.querySelectorAll('[data-checkout]').forEach(function (a) { a.href = CHECKOUT_URL; });
+  } else {
+    document.querySelectorAll('[data-checkout]').forEach(function (a) { a.href = '#oferta'; });
+  }
+</script>
+</body>
+</html>
