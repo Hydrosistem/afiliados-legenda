@@ -253,7 +253,7 @@ test('aviso com cara de Kiwify sem origem nem assinatura fica registrado como se
 test('token salvo com espaço sobrando ainda confere', () => {
   const a = ambiente({ props: { KIWIFY_TOKEN: '  ' + TOKEN + ' ' }, respostas: [brevoOk()] });
   assert.deepEqual(a.webhook(APROVADO), { ok: true, acao: 'ativado' });
-  assert.equal(ultimo(a).conferiu, 'sha1_bruto');
+  assert.equal(ultimo(a).conferiu, 'sha1_bruto_utf8');
 });
 
 test('assinatura calculada sobre o JSON compacto também confere', () => {
@@ -262,7 +262,7 @@ test('assinatura calculada sobre o JSON compacto também confere', () => {
   const a = ambiente({ respostas: [brevoOk()] });
   const sig = crypto.createHmac('sha1', TOKEN).update(compacto).digest('hex');
   assert.deepEqual(a.webhook(bonito, sig), { ok: true, acao: 'ativado' });
-  assert.equal(ultimo(a).conferiu, 'sha1_compacto');
+  assert.equal(ultimo(a).conferiu, 'sha1_compacto_utf8');
 });
 
 test('quando nada confere, o resumo diz o tamanho e o tipo da assinatura e do token, sem revelá-los', () => {

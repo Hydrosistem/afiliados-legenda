@@ -44,16 +44,20 @@ function conferirAssinaturaKiwify_(corpo, assinatura) {
   if (!token || !recebido) return '';
   var compacto = null;
   try { compacto = JSON.stringify(JSON.parse(corpo)); } catch (err) {}
+  var utf8 = Utilities.Charset.UTF_8;
   var variacoes = [
-    ['sha1_bruto', Utilities.MacAlgorithm.HMAC_SHA_1, corpo],
-    ['sha1_compacto', Utilities.MacAlgorithm.HMAC_SHA_1, compacto],
-    ['sha256_bruto', Utilities.MacAlgorithm.HMAC_SHA_256, corpo],
-    ['sha256_compacto', Utilities.MacAlgorithm.HMAC_SHA_256, compacto]
+    ['sha1_bruto_utf8', Utilities.MacAlgorithm.HMAC_SHA_1, corpo, utf8],
+    ['sha1_compacto_utf8', Utilities.MacAlgorithm.HMAC_SHA_1, compacto, utf8],
+    ['sha1_bruto', Utilities.MacAlgorithm.HMAC_SHA_1, corpo, null],
+    ['sha1_compacto', Utilities.MacAlgorithm.HMAC_SHA_1, compacto, null],
+    ['sha256_bruto_utf8', Utilities.MacAlgorithm.HMAC_SHA_256, corpo, utf8],
+    ['sha256_compacto_utf8', Utilities.MacAlgorithm.HMAC_SHA_256, compacto, utf8]
   ];
   for (var i = 0; i < variacoes.length; i++) {
-    if (variacoes[i][2] === null) continue;
-    var esperado = hexDe_(Utilities.computeHmacSignature(variacoes[i][1], variacoes[i][2], token));
-    if (iguaisSemPressa_(esperado, recebido)) return variacoes[i][0];
+    var v = variacoes[i];
+    if (v[2] === null) continue;
+    var bytes = v[3] ? Utilities.computeHmacSignature(v[1], v[2], token, v[3]) : Utilities.computeHmacSignature(v[1], v[2], token);
+    if (iguaisSemPressa_(hexDe_(bytes), recebido)) return v[0];
   }
   return '';
 }
@@ -111,6 +115,7 @@ function registrarAvisoKiwify_(info, dados) {
       conferiu: info.detalhes ? info.detalhes.conferiu : undefined,
       assinaturaRecebida: info.detalhes ? info.detalhes.assinaturaRecebida : undefined,
       token: info.detalhes ? info.detalhes.token : undefined,
+      corpo: info.detalhes ? info.detalhes.corpo : undefined,
       evento: dados ? String(dados.webhook_event_type || '') : '',
       status: dados ? String(dados.order_status || '') : '',
       formato: dados ? formatoDe_(dados) : null
@@ -143,7 +148,8 @@ function kiwifyWebhook_(e) {
   var detalhes = {
     conferiu: conferiu || 'nenhuma',
     assinaturaRecebida: { tamanho: String(assinatura || '').length, hex: /^[0-9a-f]+$/i.test(String(assinatura || '').trim()) },
-    token: { tamanho: token.trim().length, espacoSobrando: token !== token.trim() }
+    token: { tamanho: token.trim().length, espacoSobrando: token !== token.trim() },
+    corpo: { tamanho: corpo.length, temAcento: /[^\x00-\x7f]/.test(corpo), temEscapeUnicode: /\\u[0-9a-fA-F]{4}/.test(corpo), temQuebraDeLinha: /\n/.test(corpo) }
   };
   if (!conferiu) {
     var motivo = !token.trim() ? 'sem_token' : (!assinatura ? 'sem_assinatura' : 'falhou');
