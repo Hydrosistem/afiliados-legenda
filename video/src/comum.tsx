@@ -43,8 +43,10 @@ export const Fundo: React.FC = () => {
 };
 
 // Legenda da narração, na parte de baixo (muita gente assiste sem som).
-export const Legenda: React.FC<{ texto: string }> = ({ texto }) => {
-  const frame = useCurrentFrame();
+// `jaVisivel`: sem animação de entrada (usada no 1º quadro do vídeo, que vira a capa no feed).
+export const Legenda: React.FC<{ texto: string; jaVisivel?: boolean }> = ({ texto, jaVisivel = false }) => {
+  const quadro = useCurrentFrame();
+  const frame = jaVisivel ? 1000 : quadro;
   return (
     <AbsoluteFill style={{ justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 170 }}>
       <Interactive.Div
