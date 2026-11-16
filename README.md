@@ -19,6 +19,7 @@ Tela (precisa de `playwright`; usa o Chromium do próprio Playwright, ou aponte 
 1. Acesse console.cloud.google.com e crie um projeto novo (ex.: "Gerador de Post").
 2. APIs e serviços → Tela de consentimento OAuth: tipo **Externo**, nome do app "Gerador de Post", e-mail de suporte o seu. Depois publique a tela em produção (enquanto estiver em teste o login dos clientes expira em poucos dias).
 3. APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth → tipo **Aplicativo da Web**. Em "Origens JavaScript autorizadas" adicione as duas:
+   - `https://geradordepost.app.br` e `https://www.geradordepost.app.br`
    - `https://gerador-de-post.pages.dev`
    - `http://localhost:8765`
 4. Copie o Client ID gerado (termina em `.apps.googleusercontent.com`; é público, pode ficar no código) — ele é usado nos passos 2 e 3 abaixo.
@@ -39,10 +40,10 @@ Para atualizar depois: Implantar → Gerenciar implantações → lápis → Ver
 1. Em `web/index.html`, na linha `var GOOGLE_CLIENT_ID = 'COLE_AQUI_O_CLIENT_ID';`, troque só o **valor** `COLE_AQUI_O_CLIENT_ID` (o texto entre aspas) pelo Client ID copiado no passo 1 — mantenha as aspas e o nome `GOOGLE_CLIENT_ID` como está, só o conteúdo entre aspas muda.
 2. Envie o repositório ao GitHub.
 3. No Cloudflare: Workers & Pages → Create → "Continue to Pages" → Import an existing Git repository. Branch `main`, preset `None`, build command `node --test`, output directory `web`.
-4. Cada push na `main` roda os testes e publica a pasta `web/` em https://gerador-de-post.pages.dev.
+4. Cada push na `main` roda os testes e publica a pasta `web/` em https://geradordepost.app.br (domínio próprio, registrado no Registro.br com DNS no Cloudflare; o endereço https://gerador-de-post.pages.dev continua funcionando).
 
 ### 4. Celular
-Abra https://gerador-de-post.pages.dev no Chrome e toque em "Entrar com Google" (sua conta precisa estar na planilha de Clientes, com `ativo` = sim). Depois use "Instalar app".
+Abra https://geradordepost.app.br no Chrome e toque em "Entrar com Google" (sua conta precisa estar na planilha de Clientes, com `ativo` = sim). Depois use "Instalar app".
 Para a frase de efeito automática, abra ⚙️ "Sua chave do Gemini", crie uma chave grátis em https://aistudio.google.com/apikey e cole ali — a chave fica só nesse aparelho e vai direto para o Gemini. Sem chave, a frase tem que ser digitada à mão.
 
 ### Atualizando um projeto antigo (da versão com TOKEN)

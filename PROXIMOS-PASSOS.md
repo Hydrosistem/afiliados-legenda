@@ -10,7 +10,7 @@ Atualizado em 13 de novembro de 2026.
 
 ## O que já está pronto e no ar
 
-- **Site:** https://gerador-de-post.pages.dev, servido pelo Cloudflare Pages. Cada push na `main` roda `node --test` e publica a pasta `web/` em cerca de 30 segundos. **Push na main = produção.**
+- **Site:** https://geradordepost.app.br (domínio próprio desde 2026-11-16; https://gerador-de-post.pages.dev continua funcionando), servido pelo Cloudflare Pages. Cada push na `main` roda `node --test` e publica a pasta `web/` em cerca de 30 segundos. **Push na main = produção.**
 - **Servidor:** Google Apps Script, com os arquivos `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs` e `src/Code.gs`.
   - O deploy é **manual**: colar os arquivos no editor e publicar "Nova versão" em Implantar → Gerenciar implantações.
   - Publicar nova versão mantém a URL `/exec`, que está em `API_URL` no `web/index.html`.
@@ -35,15 +35,9 @@ Atualizado em 13 de novembro de 2026.
 
 ## Onde paramos
 
-O domínio **geradordepost.app.br** foi registrado no Registro.br. O domínio `geradordepost.com.br` já tinha dono.
-
-- O domínio já foi adicionado ao Cloudflare com o plano Free, e os nameservers foram trocados no Registro.br para `aurora.ns.cloudflare.com` e `ryan.ns.cloudflare.com`.
-- O Registro.br mostrava "servidores em transição", com a delegação liberada em cerca de 2 horas. **Primeiro passo ao retomar:** conferir se o Cloudflare mostra o domínio como **Active**:
-  ```
-  nslookup -type=NS geradordepost.app.br a.dns.br
-  ```
-  Os servidores do Cloudflare devem aparecer.
-- A zona no Cloudflare tem 3 registros padrão do Registro.br que dizem "este domínio não envia e-mail":
+- **Domínio pronto (2026-11-16):** `geradordepost.app.br` está registrado no Registro.br, com DNS no Cloudflare (nameservers `aurora` e `ryan`). Ele está ligado ao projeto do Pages, assim como o `www`, os dois com status Active e SSL.
+- **Login do Google:** o domínio foi autorizado nas origens do cliente OAuth e no Branding (página inicial, `/privacidade`, `/termos`, domínios autorizados).
+- **Registros de e-mail:** a zona no Cloudflare ainda tem 3 registros padrão do Registro.br que dizem "este domínio não envia e-mail":
   - MX `.`
   - TXT `v=spf1 -all`
   - TXT `_dmarc` com `p=reject`
@@ -52,12 +46,7 @@ O domínio **geradordepost.app.br** foi registrado no Registro.br. O domínio `g
 
 ## O que falta, em ordem
 
-1. **Ligar o domínio ao site:**
-   - No Cloudflare, abrir Workers & Pages → projeto gerador-de-post → Custom domains e adicionar `geradordepost.app.br` e `www.geradordepost.app.br`.
-   - Depois, atualizar:
-     - as origens do cliente OAuth no Google Cloud, adicionando `https://geradordepost.app.br` e mantendo o pages.dev;
-     - o Branding do Google, com a página inicial, `/privacidade` e `/termos`;
-     - os textos e links que citam `gerador-de-post.pages.dev` (README, guia em PDF, termos).
+1. ~~**Ligar o domínio ao site**~~: feito em 2026-11-16. Falta só atualizar o guia em PDF (`docs/guia`) com o endereço novo.
 2. **Brevo, para os e-mails do app:**
    - O remetente vai ser `nao-responda@geradordepost.app.br`.
    - Criar a conta grátis, autenticar o domínio (registros DNS no Cloudflare) e trocar os registros SPF/DMARC/MX padrão.
