@@ -1,4 +1,4 @@
-// Web app do Apps Script. Depende de src/parse.gs, src/acesso.gs e src/shopee.gs (mesmo projeto).
+// Web app do Apps Script. Depende de src/parse.gs, src/acesso.gs, src/shopee.gs e src/vendas.gs (mesmo projeto).
 
 var UA_ = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 var MAX_REDIRECIONAMENTOS_ = 5;
@@ -36,6 +36,9 @@ function login_(idToken) {
 
 function doPost(e) {
   try {
+    // Aviso de venda da Kiwify: corpo próprio, autenticado pela assinatura (vendas.gs).
+    if (e && e.parameter && e.parameter.origem === 'kiwify') return resposta_(kiwifyWebhook_(e));
+
     var p;
     try {
       p = JSON.parse(e && e.postData && e.postData.contents);
@@ -45,6 +48,8 @@ function doPost(e) {
     if (!p || typeof p !== 'object') return resposta_({ ok: false, erro: 'acao' });
 
     if (p.action === 'login') return resposta_(login_(p.idToken));
+    if (p.action === 'codigo') return resposta_(pedirCodigo_(p.email));
+    if (p.action === 'entrar') return resposta_(entrarComCodigo_(p.email, p.codigo));
 
     if (p.action === 'sair') {
       encerrarSessao_(p.sessao);

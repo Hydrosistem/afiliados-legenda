@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagamento aprovado · Gerador de Post</title>
+<link rel="icon" href="icon-192.png?v=2">
+<style>
+  :root { --texto: #222; --cinza: #6b6b6b; --fundo: #f5f5f5; --borda: #d9d9d9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); background: var(--fundo); line-height: 1.5; }
+  header { background: linear-gradient(135deg, #ffec3d 0%, #ffd000 55%, #ffb000 100%); padding: 22px 16px; border-radius: 0 0 24px 24px; text-align: center; box-shadow: 0 6px 20px rgba(160, 100, 0, .18); }
+  header img { width: 56px; height: 56px; border-radius: 16px; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(120, 70, 0, .28); }
+  header h1 { margin: 8px 0 0; font-size: 20px; }
+  main { max-width: 520px; margin: 0 auto; padding: 24px 16px 40px; text-align: center; display: grid; gap: 16px; }
+  .ok { font-size: 44px; line-height: 1; }
+  h2 { margin: 0; font-size: 24px; letter-spacing: -.3px; }
+  p { margin: 0; color: var(--cinza); }
+  .passos { text-align: left; background: #fff; border: 1px solid var(--borda); border-radius: 14px; padding: 16px 18px; display: grid; gap: 10px; margin: 0; list-style: none; }
+  .passos li { display: flex; gap: 10px; align-items: flex-start; color: var(--texto); }
+  .passos b { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #ffe600; display: grid; place-items: center; font-size: 13px; }
+  .botao { display: block; padding: 14px; border-radius: 12px; background: #ffe600; color: var(--texto); font-weight: 700; text-decoration: none; font-size: 17px; }
+  small { color: var(--cinza); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <img src="icon-192.png?v=2" alt="" width="56" height="56">
+  <h1>Gerador de Post</h1>
+</header>
+<main>
+  <div class="ok">🎉</div>
+  <h2>Pagamento aprovado!</h2>
+  <p>Seu acesso ao Gerador de Post está sendo liberado. Enviamos o link para o e-mail da compra.</p>
+  <ol class="passos">
+    <li><b>1</b><span>Toque em <strong>Entrar agora</strong>.</span></li>
+    <li><b>2</b><span>Digite o <strong>e-mail usado na compra</strong> e toque em <strong>Receber código</strong>.</span></li>
+    <li><b>3</b><span>Digite o código de 6 números que chegou no seu e-mail. Pronto!</span></li>
+  </ol>
+  <a class="botao" href="./">Entrar agora</a>
+  <small>Pagou com Pix ou boleto? A liberação pode levar alguns minutos. Se o código não chegar, confira a caixa de spam.</small>
+</main>
+</body>
+</html>

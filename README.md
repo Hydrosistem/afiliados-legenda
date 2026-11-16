@@ -26,7 +26,7 @@ Tela (precisa de `playwright`; usa o Chromium do próprio Playwright, ou aponte 
 
 ### 2. Backend (Apps Script)
 1. Acesse script.google.com e crie um projeto novo.
-2. Crie quatro arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs` e `src/Code.gs` (um arquivo para cada).
+2. Crie cinco arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs`, `src/vendas.gs` e `src/Code.gs` (um arquivo para cada).
 3. Crie uma planilha com uma aba `Clientes`, cabeçalho `email | nome | ativo` e uma linha com o seu e-mail e `sim` em `ativo`.
 4. Configurações do projeto → Propriedades do script → adicione `PLANILHA_ID` (o ID da planilha, na URL entre `/d/` e `/edit`) e `GOOGLE_CLIENT_ID` (o Client ID copiado no passo 1).
 5. No editor, selecione a função `testarAcesso` e rode (▶). Autorize o acesso à planilha quando pedir; o resultado em Execuções deve mostrar seu nome e `ativo: true`.
@@ -62,8 +62,16 @@ Links da Shopee usam a Shopee Affiliate Open API com a **sua** credencial (o cli
 
 Cada produto consultado fica 1 hora em cache e cada cliente pode fazer até 100 consultas da Shopee por dia. A legenda usa sempre o link de afiliado que o cliente colou; o app nunca gera links com o seu ID. O preço antigo é estimado pelo percentual de desconto da API.
 
+### Vendas (Kiwify) e e-mails (Brevo)
+O cliente paga na Kiwify, o acesso é liberado sozinho e ele entra com um código de 6 números enviado ao e-mail da compra (ou com o Google).
+1. **Brevo:** domínio `geradordepost.app.br` autenticado e remetente `nao-responda@geradordepost.app.br` verificado. Crie uma chave em SMTP & API → API Keys e guarde em `BREVO_API_KEY` nas Propriedades do script. Rode `testarBrevo` (em `vendas.gs`): deve chegar um e-mail de teste no seu Gmail.
+2. **Kiwify:** produto a R$ 29,90; URL da página de obrigado: `https://geradordepost.app.br/obrigado`. Em Apps → Webhooks, crie um webhook com os eventos de compra aprovada, reembolso e chargeback, URL `<sua URL /exec>?origem=kiwify`. Copie o token do webhook para `KIWIFY_TOKEN` nas Propriedades do script.
+3. Dispare um aviso de teste na Kiwify e confira em Execuções a linha `Kiwify (formato do aviso)` (mostra só a estrutura, sem dados pessoais). Se os nomes dos campos forem diferentes dos de `test/fixtures/kiwify-aprovado.json`, ajuste `lerPedidoKiwify_`.
+
+Compra aprovada: a linha entra na aba `Clientes` (`email | nome | ativo | pedido | data | origem`) e o cliente recebe o e-mail de boas-vindas. Reembolso/chargeback: `ativo` vira `não` e as sessões caem. O mesmo pedido repetido não duplica nada. Códigos: válidos por 10 minutos, 5 tentativas, no máximo 1 por minuto e 5 por hora por e-mail.
+
 ## Clientes
-- **Adicionar um cliente:** nova linha na aba `Clientes` com o e-mail exato da conta Google usada na compra (inclusive os pontos, ex.: `maria.silva@gmail.com`), o nome e `sim` em `ativo`.
+- **Adicionar um cliente:** compras pela Kiwify entram sozinhas. Para liberar à mão, crie uma linha na aba `Clientes` com o e-mail (em minúsculas), o nome e `sim` em `ativo`.
 - **Desativar:** troque `ativo` para `não` (pode deixar a linha na planilha).
 - Mantenha **uma linha por e-mail**: se houver duplicidade, só a primeira linha encontrada vale.
 - Cada cliente pode estar logado em até **2 aparelhos** ao mesmo tempo; um terceiro login derruba o mais antigo.

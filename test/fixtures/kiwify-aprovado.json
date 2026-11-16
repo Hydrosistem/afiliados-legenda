@@ -1,0 +1,16 @@
+{
+  "order_id": "pedido-teste-0001",
+  "order_ref": "AbCd123",
+  "order_status": "paid",
+  "webhook_event_type": "order_approved",
+  "payment_method": "pix",
+  "approved_date": "2026-11-16 15:30",
+  "Product": { "product_id": "produto-teste", "product_name": "Gerador de Post" },
+  "Customer": {
+    "full_name": "Cliente Teste",
+    "first_name": "Cliente",
+    "email": "Cliente.Teste@Example.com",
+    "mobile": "+5500000000000"
+  },
+  "Commissions": { "charge_amount": 2990, "currency": "BRL" }
+}

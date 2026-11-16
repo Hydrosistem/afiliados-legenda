@@ -31,6 +31,7 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
     getScriptCache: () => ({
       get: (k) => (cache.has(k) ? cache.get(k) : null),
       put: (k, v, ttl) => { cache.set(k, v); chamadas.cachePut.push({ k, ttl }); },
+      remove: (k) => { cache.delete(k); },
     }),
   };
 
@@ -47,7 +48,20 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
       chamadas.planilhaId = id;
       return {
         getSheetByName: () => ({
-          getDataRange: () => ({ getValues: () => clientes }),
+          getDataRange: () => ({ getValues: () => clientes.map((r) => r.slice()) }),
+          appendRow: (linha) => { clientes.push(linha.slice()); },
+          getRange: (linha, coluna, nLinhas, nColunas) => ({
+            setValue: (v) => {
+              while (clientes.length < linha) clientes.push([]);
+              clientes[linha - 1][coluna - 1] = v;
+            },
+            setValues: (vals) => {
+              for (let i = 0; i < vals.length; i++) {
+                while (clientes.length < linha + i) clientes.push([]);
+                for (let j = 0; j < vals[i].length; j++) clientes[linha - 1 + i][coluna - 1 + j] = vals[i][j];
+              }
+            },
+          }),
         }),
       };
     },
@@ -71,6 +85,10 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
   const Utilities = {
     DigestAlgorithm: { MD5: 'MD5', SHA_256: 'SHA_256' },
     Charset: { UTF_8: 'UTF_8' },
+    MacAlgorithm: { HMAC_SHA_1: 'HMAC_SHA_1' },
+    computeHmacSignature: (alg, valor, chave) =>
+      Array.from(crypto.createHmac('sha1', String(chave)).update(String(valor), 'utf8').digest())
+        .map((b) => (b > 127 ? b - 256 : b)),
     computeDigest: (alg, str) =>
       Array.from(crypto.createHash(alg === 'SHA_256' ? 'sha256' : 'md5').update(String(str), 'utf8').digest())
         .map((b) => (b > 127 ? b - 256 : b)),
@@ -88,6 +106,7 @@ function makeStubs({ props = {}, respostas = [], clientes = [['email', 'nome', '
     Utilities,
     chamadas,
     propriedades,
+    clientes,
   };
 }
 

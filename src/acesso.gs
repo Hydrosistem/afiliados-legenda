@@ -120,6 +120,20 @@ function encerrarSessao_(id) {
   }
 }
 
+// Derruba todas as sessões de um e-mail (reembolso, estorno).
+function encerrarSessoesDoEmail_(email) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var chaveLista = 'u:' + email;
+    listaSessoes_(props, chaveLista).forEach(function (id) { props.deleteProperty('s:' + id); });
+    props.deleteProperty(chaveLista);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 // Para rodar no editor do Apps Script e conferir o próprio acesso.
 function testarAcesso() {
   console.log(buscarCliente_(Session.getEffectiveUser().getEmail()));

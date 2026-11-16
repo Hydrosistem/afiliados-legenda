@@ -47,16 +47,20 @@ Atualizado em 13 de novembro de 2026.
 
 1. ~~**Ligar o domínio ao site**~~: feito em 2026-11-16. Falta só atualizar o guia em PDF (`docs/guia`) com o endereço novo.
 2. ~~**Brevo**~~: feito em 2026-11-16 (veja "Onde paramos"). Falta só a chave da API, que é criada na hora de programar o envio do código.
-3. **Kiwify:** produto "Gerador de Post" a **R$ 29,90**.
-   - O webhook de venda aprovada preenche a planilha sozinho (nome, e-mail, `ativo = sim`).
-   - Reembolso ou estorno muda para `ativo = não`.
-   - O checkout deve deixar claro que o e-mail usado é o de acesso.
-4. **Entrada por código enviado por e-mail (sem senha)**, decisão já tomada:
-   - O cliente digita o e-mail da compra, recebe um código de 6 dígitos pelo Brevo e entra.
-   - O botão "Entrar com Google" continua como opção.
-   - Depois do pagamento, a Kiwify redireciona para uma tela "Pronto! Confira seu e-mail ou entre agora".
-   - E-mail de boas-vindas com o link do app.
-   - Antes de programar: escrever o design em `docs/superpowers/specs/` e aprovar com o dono.
+3. **Kiwify + entrada por código: código pronto em 2026-11-16, ainda não publicado.** O commit local tem:
+   - `src/vendas.gs`: webhook, planilha, Brevo e código;
+   - a tela com e-mail, código e Google;
+   - `web/obrigado.html`;
+   - Termos e Privacidade atualizados;
+   - 121 testes passando.
+
+   O formato do aviso da Kiwify em `test/fixtures/kiwify-aprovado.json` é **provisório**. Falta, com o dono:
+   1. **Brevo:** criar a chave da API, colocar em `BREVO_API_KEY` e rodar `testarBrevo`.
+   2. **Kiwify:** criar o produto (R$ 29,90), a URL de obrigado `/obrigado` e o webhook para `/exec?origem=kiwify`, com os eventos de aprovada, reembolso e chargeback. Depois, colocar o token em `KIWIFY_TOKEN`.
+   3. **Apps Script:** colar `vendas.gs`, `acesso.gs` e `Code.gs` e publicar a Nova versão **junto** com o push do site.
+   4. Disparar um aviso de teste, conferir em Execuções a linha "Kiwify (formato do aviso)" e ajustar `lerPedidoKiwify_` e a fixture, se precisar.
+   5. Se a Kiwify recusar a resposta 302 do Apps Script, usar o plano B (Cloudflare Pages Function), descrito no spec `docs/superpowers/specs/2026-11-16-kiwify-codigo-email-design.md`.
+4. ~~Entrada por código~~: incluída no item 3.
 5. **Página de vendas** (por exemplo, `/conhecer`):
    - explica o Gerador, mostra exemplos e tem o botão "Quero o Gerador", que leva ao checkout da Kiwify;
    - o link dela é o que o robô manda no direct.

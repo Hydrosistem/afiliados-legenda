@@ -13,7 +13,8 @@ test('tela de entrada apresenta o app', () => {
   const textos = [
     'Sua legenda de oferta pronta em segundos',
     'Cole o link do produto e receba a legenda pronta para o seu canal do WhatsApp.',
-    'Entre com a conta Google usada na compra.',
+    'Entre com o e-mail usado na compra.',
+    'Receber código',
     'Exemplo',
     'Fone Bluetooth sem fio',
     'R$ 199,90',
@@ -50,4 +51,19 @@ test('Termos de Uso trazem as cláusulas exigidas pela Shopee', () => {
   assert.ok(termos.includes('terceira beneficiária'), 'Shopee como terceira beneficiária');
   assert.ok(termos.includes('termina automaticamente se você descumprir'), 'encerramento por violação ou ordem da Shopee');
   assert.ok(termos.includes('Não é afiliado, patrocinado, endossado'), 'aviso de independência');
+});
+
+test('login por código: formulário de e-mail, de código e o Google como alternativa', () => {
+  for (const id of ['formEmail', 'emailLogin', 'pedirCodigo', 'formCodigo', 'codigoLogin', 'entrarCodigo', 'trocarEmail', 'botaoGoogle']) {
+    assert.ok(tela.includes(`id="${id}"`), `falta #${id}`);
+  }
+  assert.ok(tela.indexOf('id="formEmail"') < tela.indexOf('id="botaoGoogle"'), 'e-mail vem antes do Google');
+  assert.ok(/id="formCodigo"[^>]*hidden/.test(tela), 'código começa escondido');
+  assert.ok(html.includes("action: 'codigo'") && html.includes("action: 'entrar'"), 'chamadas ao servidor');
+});
+
+test('página /obrigado existe e leva ao app', () => {
+  const obrigado = fs.readFileSync(path.join(__dirname, '..', 'web', 'obrigado.html'), 'utf8');
+  assert.ok(obrigado.includes('Pagamento aprovado'));
+  assert.ok(obrigado.includes('href="./"'));
 });

@@ -54,9 +54,17 @@
   #telaLogin .apoio { font-size: 15px; line-height: 1.45; margin-top: -6px; }
   #telaLogin .entrar { margin-top: 4px; }
   #botaoGoogle { display: flex; justify-content: center; }
+  .form-login { display: grid; gap: 10px; max-width: 380px; width: 100%; margin: 0 auto; }
+  .form-login input { text-align: center; font-size: 16px; }
+  #codigoLogin { font-size: 24px; letter-spacing: 8px; font-weight: 700; }
+  #telaLogin .dica-codigo { font-size: 13.5px; }
+  .form-login button.link { background: none; border: 0; padding: 4px; font-weight: 500; font-size: 13px; color: var(--cinza); text-decoration: underline; }
+  .ou { display: flex; align-items: center; gap: 10px; max-width: 380px; width: 100%; margin: 0 auto; color: var(--cinza); font-size: 12.5px; }
+  .ou::before, .ou::after { content: ""; flex: 1; height: 1px; background: var(--borda); }
   #telaLogin p.aceite { font-size: 12px; margin-top: -4px; }
   #telaLogin p.aceite a { color: var(--cinza); }
-  #avisoLogin { min-height: 20px; font-size: 14px; color: var(--cinza); }
+  #avisoLogin { min-height: 0; font-size: 14px; color: var(--cinza); white-space: pre-line; }
+  #avisoLogin:empty { display: none; }
   .exemplo { display: grid; gap: 8px; justify-items: center; margin-top: 4px; }
   .exemplo .etiqueta { font-size: 11.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--cinza); }
   .conversa { width: 100%; max-width: 380px; background: #efeae2; border-radius: 16px; padding: 14px 14px 14px 22px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.04); }
@@ -121,10 +129,21 @@
 <div id="telaLogin" hidden>
   <h2>Sua legenda de oferta pronta em segundos</h2>
   <p class="apoio">Cole o link do produto e receba a legenda pronta para o seu canal do WhatsApp.</p>
-  <p class="entrar">Entre com a conta Google usada na compra.</p>
+  <p class="entrar">Entre com o e-mail usado na compra.</p>
+  <form id="formEmail" class="form-login" novalidate>
+    <input id="emailLogin" type="email" inputmode="email" autocomplete="email" placeholder="seu@email.com" aria-label="E-mail usado na compra">
+    <button id="pedirCodigo" type="submit">Receber código</button>
+  </form>
+  <form id="formCodigo" class="form-login" hidden novalidate>
+    <p class="dica-codigo">Enviamos um código de 6 números para <strong id="emailEnviado"></strong>.</p>
+    <input id="codigoLogin" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" aria-label="Código de 6 números">
+    <button id="entrarCodigo" type="submit">Entrar</button>
+    <button id="trocarEmail" type="button" class="link">Usar outro e-mail ou pedir novo código</button>
+  </form>
+  <div id="avisoLogin" role="status"></div>
+  <div class="ou"><span>ou</span></div>
   <div id="botaoGoogle"></div>
   <p class="aceite">Ao entrar, você concorda com os <a href="termos.html">Termos de Uso</a> e a <a href="privacidade.html">Política de Privacidade</a>.</p>
-  <div id="avisoLogin" role="status"></div>
   <div class="exemplo">
     <span class="etiqueta">Exemplo</span>
     <div class="conversa" aria-label="Exemplo de legenda gerada">
@@ -247,6 +266,7 @@ function mostrarTelaLogin() {
   $('app').hidden = true;
   $('conta').hidden = true;
   $('telaLogin').hidden = false;
+  voltarAoEmail();
   renderizarBotaoGoogle();
 }
 
@@ -334,9 +354,80 @@ async function aoLogar(resp) {
     gravarLS(LS_NOME, r.nome);
     mostrarApp(r.nome);
   } else if (r.erro === 'sem_acesso') {
-    avisoLogin('Este e-mail não tem acesso. Fale com quem te vendeu o Gerador de Post.', true);
+    avisoLogin('Essa conta Google não tem compra do Gerador de Post. Entre com o e-mail usado na compra.', true);
   } else {
     avisoLogin('Não consegui confirmar seu login. Tente de novo.', true);
+  }
+}
+
+// ---------- Entrada por código enviado por e-mail ----------
+var emailPendente = '';
+var MSG_CODIGO = {
+  email: 'Confira o e-mail digitado.',
+  sem_compra: 'Não encontramos compra com esse e-mail. Se pagou por Pix ou boleto, aguarde alguns minutos e tente de novo.',
+  espere: 'Aguarde 1 minuto para pedir outro código.',
+  limite_codigo: 'Muitos códigos pedidos. Tente de novo daqui a 1 hora.',
+  email_envio: 'Não consegui enviar o e-mail agora. Tente de novo em instantes.',
+  codigo_expirado: 'Esse código expirou. Peça um novo.',
+  codigo_bloqueado: 'Muitas tentativas erradas. Peça um novo código.'
+};
+
+function voltarAoEmail() {
+  $('formCodigo').hidden = true;
+  $('formEmail').hidden = false;
+  $('codigoLogin').value = '';
+}
+
+async function pedirCodigo(ev) {
+  ev.preventDefault();
+  var email = $('emailLogin').value.trim().toLowerCase();
+  if (!email) { avisoLogin('Digite o e-mail usado na compra.', true); return; }
+  $('pedirCodigo').disabled = true;
+  avisoLogin('Enviando código…');
+  try {
+    var r = await api({ action: 'codigo', email: email });
+    if (r.ok) {
+      emailPendente = email;
+      $('emailEnviado').textContent = email;
+      $('formEmail').hidden = true;
+      $('formCodigo').hidden = false;
+      $('codigoLogin').value = '';
+      $('codigoLogin').focus();
+      avisoLogin('Código enviado! Confira sua caixa de entrada (e o spam).');
+    } else {
+      avisoLogin(MSG_CODIGO[r.erro] || 'Não consegui enviar o código. Tente de novo.', true);
+    }
+  } catch (e) {
+    avisoLogin('Falha de rede. Tente de novo.', true);
+  } finally {
+    $('pedirCodigo').disabled = false;
+  }
+}
+
+async function entrarComCodigo(ev) {
+  ev.preventDefault();
+  var codigo = $('codigoLogin').value.replace(/\D/g, '');
+  if (codigo.length !== 6) { avisoLogin('Digite os 6 números do código.', true); return; }
+  $('entrarCodigo').disabled = true;
+  avisoLogin('Entrando…');
+  try {
+    var r = await api({ action: 'entrar', email: emailPendente, codigo: codigo });
+    if (r.ok) {
+      gravarLS(LS_SESSAO, r.sessao);
+      gravarLS(LS_NOME, r.nome);
+      avisoLogin('');
+      voltarAoEmail();
+      mostrarApp(r.nome);
+    } else if (r.erro === 'codigo_errado') {
+      avisoLogin('Código incorreto. ' + (r.restantes === 1 ? 'Resta 1 tentativa.' : 'Restam ' + r.restantes + ' tentativas.'), true);
+    } else {
+      if (r.erro === 'codigo_expirado' || r.erro === 'codigo_bloqueado') voltarAoEmail();
+      avisoLogin(MSG_CODIGO[r.erro] || 'Não consegui confirmar o código. Tente de novo.', true);
+    }
+  } catch (e) {
+    avisoLogin('Falha de rede. Tente de novo.', true);
+  } finally {
+    $('entrarCodigo').disabled = false;
   }
 }
 
@@ -493,6 +584,9 @@ $('copiar').addEventListener('click', copiarLegenda);
 $('compartilhar').addEventListener('click', compartilharImagem);
 $('salvarChave').addEventListener('click', salvarChave);
 $('apagarChave').addEventListener('click', apagarChave);
+$('formEmail').addEventListener('submit', pedirCodigo);
+$('formCodigo').addEventListener('submit', entrarComCodigo);
+$('trocarEmail').addEventListener('click', function () { voltarAoEmail(); avisoLogin(''); $('emailLogin').focus(); });
 $('sair').addEventListener('click', function () {
   api({ action: 'sair' })['catch'](function () {});
   voltarLogin('');

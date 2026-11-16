@@ -19,7 +19,7 @@ function ambiente(opts) {
     clientes: opts.clientes || CLIENTES_PADRAO,
     respostas: opts.respostas || [],
   });
-  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/Code.gs'], stubs);
+  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/vendas.gs', 'src/Code.gs'], stubs);
   const chamar = (p) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(p) } }).getContent());
   return { stubs, ctx, chamar };
 }
@@ -86,8 +86,7 @@ test('cliente desativado depois do login: info devolve sem_acesso e a sessão so
   const amb = ambiente({ clientes: CLIENTES_PADRAO.map((l) => l.slice()) });
   const sessao = logado(amb);
   // Desativa a Maria na planilha.
-  const linhas = amb.ctx.SpreadsheetApp.openById('pid').getSheetByName('Clientes').getDataRange().getValues();
-  linhas[1][2] = 'não';
+  amb.ctx.SpreadsheetApp.openById('pid').getSheetByName('Clientes').getRange(2, 3).setValue('não');
   assert.deepEqual(amb.chamar(info(sessao, 'https://meli.la/a')), { ok: false, erro: 'sem_acesso' });
   assert.equal(amb.ctx.emailDaSessao_(sessao), null);
 });
