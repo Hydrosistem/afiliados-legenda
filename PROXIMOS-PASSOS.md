@@ -60,6 +60,11 @@ Atualizado em 13 de novembro de 2026.
      - publicar o site novo (tela com o código);
      - apagar a linha de teste `johndoe@example.com`;
      - recriar o webhook para trocar o token, que apareceu num print.
+3b. **IA inclusa (opção B, 2026-11-16), código pronto, ainda não publicado:**
+   - Sem chave própria, a frase sai pelo servidor com a chave do vendedor (`GEMINI_KEY`), com cota diária por cliente (`COTA_FRASES_DIA`, padrão 50). Quem tem chave própria continua direto no Gemini, sem limite.
+   - Arquivos: `src/ia.gs` e `web/frase.js`, este colado no Apps Script como `frase`.
+   - Ordem de publicação: **primeiro o servidor** (chave, arquivos, `testarIA`, Nova versão), **depois** o push do site.
+   - Falta também atualizar o guia em PDF ("IA inclusa").
 4. ~~Entrada por código~~: incluída no item 3.
 5. **Página de vendas** (por exemplo, `/conhecer`):
    - explica o Gerador, mostra exemplos e tem o botão "Quero o Gerador", que leva ao checkout da Kiwify;

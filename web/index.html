@@ -91,6 +91,7 @@
   #config .guia ol { margin: 10px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.5; display: grid; gap: 6px; }
   #config .botao-guia { display: block; margin-top: 12px; text-align: center; padding: 11px 14px; border-radius: 10px; background: var(--amarelo); color: var(--texto); font-weight: 700; text-decoration: none; }
   #config .dicas { margin: 12px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--cinza); line-height: 1.45; display: grid; gap: 4px; }
+  #config .intro-ia { font-size: 13px; color: var(--cinza); margin: 6px 0 0; line-height: 1.45; }
   #statusChave { font-size: 13px; color: var(--cinza); margin: 10px 0 0; font-weight: 600; }
 </style>
 </head>
@@ -206,7 +207,8 @@
   <button id="compartilhar" type="button" class="sec" disabled>Compartilhar imagem</button>
 
   <details id="config">
-    <summary>⚙️ Sua chave do Gemini (frase automática)</summary>
+    <summary>⚙️ Frase com IA: usar sem limite (opcional)</summary>
+    <p class="intro-ia">A frase com IA já vem <strong>inclusa</strong>, com um limite diário de frases. Se quiser usar <strong>sem limite</strong>, conecte a sua própria chave grátis do Gemini abaixo.</p>
     <label for="chaveGemini">Chave do Gemini</label>
     <input id="chaveGemini" type="password" placeholder="Cole sua chave aqui" autocomplete="off">
     <div class="linha">
@@ -301,7 +303,7 @@ async function api(params) {
   // Só derruba a sessão se ela ainda for a mesma que foi enviada: entre o pedido sair e a resposta
   // chegar, o usuário pode ter trocado de sessão (ex.: logou de novo) — uma resposta atrasada de
   // 'sessao'/'sem_acesso' não pode apagar uma sessão mais nova que a que gerou esse pedido.
-  if (!r.ok && (params.action === 'info' || params.action === 'img') && lerLS(LS_SESSAO) === sessaoEnviada) {
+  if (!r.ok && (params.action === 'info' || params.action === 'img' || params.action === 'frase') && lerLS(LS_SESSAO) === sessaoEnviada) {
     if (r.erro === 'sessao') {
       voltarLogin('Sua sessão terminou (sua conta entrou em outro aparelho). Entre de novo.', true);
     } else if (r.erro === 'sem_acesso') {
@@ -499,14 +501,16 @@ async function gerar() {
     var titulo = $('titulo').value.trim();
     if (!titulo) { aviso('Sem frase de efeito automática. Digite a frase abaixo.'); return; }
     aviso('Criando a frase…');
-    var f = await gerarFrase(titulo, lerLS(LS_GEMINI) || '');
+    var f = await criarFrase(titulo);
+    if (f.erro === 'sessao' || f.erro === 'sem_acesso') return;
     $('frase').value = f.frase || '';
     $('emoji').value = f.emoji || '';
     atualizarLegenda();
-    if (f.erro === 'sem_chave') aviso('Sem chave do Gemini: digite a frase ou configure a chave em ⚙️.');
-    else if (f.erro === 'chave') aviso('O Gemini recusou sua chave. Confira em ⚙️.', true);
-    else if (f.erro === 'limite') aviso('Limite do Gemini atingido. Tente daqui a pouco ou digite a frase.', true);
-    else if (f.erro === 'rede' || f.erro === 'formato') aviso('Não consegui criar a frase. Digite abaixo.', true);
+    if (f.erro === 'chave') aviso('O Gemini recusou sua chave. Confira em ⚙️ ou apague-a para usar a IA inclusa.', true);
+    else if (f.erro === 'cota_frase') aviso('Você usou as ' + (f.limite || '') + ' frases com IA de hoje. Amanhã renova; para usar sem limite, conecte sua chave do Gemini em ⚙️. Digite a frase abaixo.', true);
+    else if (f.erro === 'limite') aviso('A IA está ocupada agora. Gere de novo em instantes ou digite a frase.', true);
+    else if (f.erro === 'ia_indisponivel') aviso('Frase automática indisponível no momento. Digite a frase abaixo.', true);
+    else if (f.erro) aviso('Não consegui criar a frase. Digite abaixo.', true);
     else aviso('');
   } catch (e) {
     aviso('Falha de rede. Tente de novo ou preencha à mão.', true);
@@ -551,7 +555,22 @@ async function compartilharImagem() {
 }
 
 function atualizarStatusChave() {
-  $('statusChave').textContent = lerLS(LS_GEMINI) ? 'Chave salva' : 'Sem chave';
+  $('statusChave').textContent = lerLS(LS_GEMINI)
+    ? 'Chave salva: frases com IA sem limite, direto no Gemini.'
+    : 'Sem chave: usando a IA inclusa (limite diário de frases).';
+}
+
+// Com chave própria: Gemini direto do navegador, sem limite. Sem chave: IA inclusa, pelo servidor, com cota diária.
+async function criarFrase(titulo) {
+  var chave = lerLS(LS_GEMINI);
+  if (chave) return gerarFrase(titulo, chave);
+  try {
+    var r = await api({ action: 'frase', titulo: titulo });
+    if (r.ok) return { frase: r.frase, emoji: r.emoji, erro: '' };
+    return { frase: '', emoji: '', erro: r.erro || 'rede', limite: r.limite };
+  } catch (e) {
+    return { frase: '', emoji: '', erro: 'rede' };
+  }
 }
 
 function salvarChave() {

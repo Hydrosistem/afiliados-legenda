@@ -19,7 +19,7 @@ function ambiente(opts) {
     clientes: opts.clientes || CLIENTES_PADRAO,
     respostas: opts.respostas || [],
   });
-  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/vendas.gs', 'src/Code.gs'], stubs);
+  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/vendas.gs', 'web/frase.js', 'src/ia.gs', 'src/Code.gs'], stubs);
   const chamar = (p) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(p) } }).getContent());
   return { stubs, ctx, chamar };
 }

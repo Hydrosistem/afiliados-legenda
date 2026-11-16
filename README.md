@@ -26,7 +26,7 @@ Tela (precisa de `playwright`; usa o Chromium do próprio Playwright, ou aponte 
 
 ### 2. Backend (Apps Script)
 1. Acesse script.google.com e crie um projeto novo.
-2. Crie cinco arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs`, `src/vendas.gs` e `src/Code.gs` (um arquivo para cada).
+2. Crie sete arquivos e cole o conteúdo de `src/parse.gs`, `src/acesso.gs`, `src/shopee.gs`, `src/vendas.gs`, `src/ia.gs`, `web/frase.js` (como `frase`) e `src/Code.gs` (um arquivo para cada).
 3. Crie uma planilha com uma aba `Clientes`, cabeçalho `email | nome | ativo` e uma linha com o seu e-mail e `sim` em `ativo`.
 4. Configurações do projeto → Propriedades do script → adicione `PLANILHA_ID` (o ID da planilha, na URL entre `/d/` e `/edit`) e `GOOGLE_CLIENT_ID` (o Client ID copiado no passo 1).
 5. No editor, selecione a função `testarAcesso` e rode (▶). Autorize o acesso à planilha quando pedir; o resultado em Execuções deve mostrar seu nome e `ativo: true`.
@@ -69,6 +69,15 @@ O cliente paga na Kiwify, o acesso é liberado sozinho e ele entra com um códig
 3. Dispare um aviso de teste na Kiwify e confira em Execuções a linha `Kiwify (formato do aviso)` (mostra só a estrutura, sem dados pessoais). Se os nomes dos campos forem diferentes dos de `test/fixtures/kiwify-aprovado.json`, ajuste `lerPedidoKiwify_`.
 
 Compra aprovada: a linha entra na aba `Clientes` (`email | nome | ativo | pedido | data | origem`) e o cliente recebe o e-mail de boas-vindas. Reembolso/chargeback: `ativo` vira `não` e as sessões caem. O mesmo pedido repetido não duplica nada. Códigos: válidos por 10 minutos, 5 tentativas, no máximo 1 por minuto e 5 por hora por e-mail.
+
+### Frase com IA inclusa
+Sem chave própria, o cliente usa a IA pelo servidor, com a chave do vendedor e um limite diário por cliente. Quem cola a própria chave em ⚙️ usa o Gemini direto do navegador, sem limite.
+1. No Apps Script, crie o arquivo `frase` com o conteúdo de `web/frase.js` (o mesmo prompt do navegador) e o arquivo `ia` com `src/ia.gs`.
+2. Crie uma chave em https://aistudio.google.com/apikey (de preferência num projeto só do Gerador) e guarde em `GEMINI_KEY` nas Propriedades do script.
+3. Opcional: `COTA_FRASES_DIA` (padrão 50).
+4. Rode `testarIA`: deve aparecer `{"ok":true,"frase":...}`.
+
+Só o título do produto vai para o Gemini. Frases que falham não gastam a cota.
 
 ## Clientes
 - **Adicionar um cliente:** compras pela Kiwify entram sozinhas. Para liberar à mão, crie uma linha na aba `Clientes` com o e-mail (em minúsculas), o nome e `sim` em `ativo`.

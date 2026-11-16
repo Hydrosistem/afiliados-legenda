@@ -20,7 +20,7 @@ function ambiente(opts) {
     clientes: opts.clientes || [['email', 'nome', 'ativo']],
     respostas: opts.respostas || [],
   });
-  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/vendas.gs', 'src/Code.gs'], stubs);
+  const ctx = loadGs(['src/parse.gs', 'src/acesso.gs', 'src/shopee.gs', 'src/vendas.gs', 'web/frase.js', 'src/ia.gs', 'src/Code.gs'], stubs);
   const chamar = (p) => JSON.parse(ctx.doPost({ parameter: {}, postData: { contents: JSON.stringify(p) } }).getContent());
   const webhook = (corpo, assinatura) => JSON.parse(ctx.doPost({
     parameter: { origem: 'kiwify', signature: assinatura === undefined ? assinar(corpo) : assinatura },

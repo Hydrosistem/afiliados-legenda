@@ -1,4 +1,4 @@
-// Web app do Apps Script. Depende de src/parse.gs, src/acesso.gs, src/shopee.gs e src/vendas.gs (mesmo projeto).
+// Web app do Apps Script. Depende de src/parse.gs, src/acesso.gs, src/shopee.gs, src/vendas.gs, src/ia.gs e web/frase.js (mesmo projeto).
 
 var UA_ = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 var MAX_REDIRECIONAMENTOS_ = 5;
@@ -58,6 +58,12 @@ function doPost(e) {
     if (p.action === 'sair') {
       encerrarSessao_(p.sessao);
       return resposta_({ ok: true });
+    }
+
+    if (p.action === 'frase') {
+      var authFrase = autenticar_(p.sessao);
+      if (!authFrase.ok) return resposta_(authFrase);
+      return resposta_(gerarFraseServidor_(authFrase.email, p.titulo));
     }
 
     if (p.action === 'info' || p.action === 'img') {

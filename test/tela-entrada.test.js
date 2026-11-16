@@ -67,3 +67,9 @@ test('página /obrigado existe e leva ao app', () => {
   assert.ok(obrigado.includes('Pagamento aprovado'));
   assert.ok(obrigado.includes('href="./"'));
 });
+
+test('frase: sem chave própria usa a IA inclusa pelo servidor; com chave, o Gemini direto', () => {
+  assert.ok(html.includes("action: 'frase'"), 'chama a IA inclusa no servidor');
+  assert.ok(html.includes('function criarFrase'), 'escolhe entre IA inclusa e chave própria');
+  assert.ok(html.includes('inclusa'), 'explica que a IA já vem inclusa');
+});
