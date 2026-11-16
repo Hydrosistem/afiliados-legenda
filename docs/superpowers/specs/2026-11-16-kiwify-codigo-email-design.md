@@ -3,7 +3,7 @@
 Data: 2026-11-16. Status: proposta para aprovação.
 
 ## Intenção
-Vender o Gerador de Post por **R$ 29,90** via anúncio (FB/IG), sem nenhum passo manual do vendedor:
+Vender o Gerador de Post por **R$ 19,90** via anúncio (FB/IG), sem nenhum passo manual do vendedor:
 1. A pessoa paga na Kiwify.
 2. O acesso é liberado sozinho.
 3. Ela recebe o link por e-mail.
@@ -89,7 +89,7 @@ Reembolso/estorno (webhook) ──► ativo = não + encerra as sessões do e-ma
 
 ## O dono configura (com guia)
 - **Kiwify:**
-  - criar o produto (R$ 29,90);
+  - criar o produto (R$ 19,90);
   - URL de obrigado: `https://geradordepost.app.br/obrigado`;
   - criar o webhook com os eventos de compra aprovada, reembolso e chargeback, apontando para a URL do Apps Script;
   - copiar o token do webhook para a propriedade `KIWIFY_TOKEN`.

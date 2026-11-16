@@ -65,7 +65,7 @@ Cada produto consultado fica 1 hora em cache e cada cliente pode fazer até 100 
 ### Vendas (Kiwify) e e-mails (Brevo)
 O cliente paga na Kiwify, o acesso é liberado sozinho e ele entra com um código de 6 números enviado ao e-mail da compra (ou com o Google).
 1. **Brevo:** domínio `geradordepost.app.br` autenticado e remetente `nao-responda@geradordepost.app.br` verificado. Crie uma chave em SMTP & API → API Keys e guarde em `BREVO_API_KEY` nas Propriedades do script. Rode `testarBrevo` (em `vendas.gs`): deve chegar um e-mail de teste no seu Gmail.
-2. **Kiwify:** produto a R$ 29,90; URL da página de obrigado: `https://geradordepost.app.br/obrigado`. Em Apps → Webhooks, crie um webhook com os eventos de compra aprovada, reembolso e chargeback, URL `<sua URL /exec>?origem=kiwify`. Copie o token do webhook para `KIWIFY_TOKEN` nas Propriedades do script.
+2. **Kiwify:** produto a R$ 19,90; URL da página de obrigado: `https://geradordepost.app.br/obrigado`. Em Apps → Webhooks, crie um webhook com os eventos de compra aprovada, reembolso e chargeback, URL `<sua URL /exec>?origem=kiwify`. Copie o token do webhook para `KIWIFY_TOKEN` nas Propriedades do script.
 3. Dispare um aviso de teste na Kiwify e confira em Execuções a linha `Kiwify (formato do aviso)` (mostra só a estrutura, sem dados pessoais). Se os nomes dos campos forem diferentes dos de `test/fixtures/kiwify-aprovado.json`, ajuste `lerPedidoKiwify_`.
 
 Compra aprovada: a linha entra na aba `Clientes` (`email | nome | ativo | pedido | data | origem`) e o cliente recebe o e-mail de boas-vindas. Reembolso/chargeback: `ativo` vira `não` e as sessões caem. O mesmo pedido repetido não duplica nada. Códigos: válidos por 10 minutos, 5 tentativas, no máximo 1 por minuto e 5 por hora por e-mail.
