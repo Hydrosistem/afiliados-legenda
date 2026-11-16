@@ -1,0 +1,435 @@
+[
+  {
+    "text": "Você",
+    "startMs": 70,
+    "endMs": 435,
+    "timestampMs": 252,
+    "confidence": null
+  },
+  {
+    "text": " ainda",
+    "startMs": 435,
+    "endMs": 799,
+    "timestampMs": 617,
+    "confidence": null
+  },
+  {
+    "text": " monta",
+    "startMs": 799,
+    "endMs": 1164,
+    "timestampMs": 982,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " post",
+    "startMs": 1164,
+    "endMs": 1346,
+    "timestampMs": 1255,
+    "confidence": null
+  },
+  {
+    "text": " de",
+    "startMs": 1346,
+    "endMs": 1528,
+    "timestampMs": 1437,
+    "confidence": null
+  },
+  {
+    "text": " oferta",
+    "startMs": 1528,
+    "endMs": 2075,
+    "timestampMs": 1802,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " na",
+    "startMs": 2075,
+    "endMs": 2258,
+    "timestampMs": 2167,
+    "confidence": null
+  },
+  {
+    "text": " mão?",
+    "startMs": 2258,
+    "endMs": 2440,
+    "timestampMs": 2349,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " Copiar",
+    "startMs": 2640,
+    "endMs": 2933,
+    "timestampMs": 2786,
+    "confidence": null
+  },
+  {
+    "text": " título,",
+    "startMs": 2933,
+    "endMs": 3372,
+    "timestampMs": 3152,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " calcular",
+    "startMs": 3372,
+    "endMs": 3811,
+    "timestampMs": 3591,
+    "confidence": null
+  },
+  {
+    "text": " desconto,",
+    "startMs": 3811,
+    "endMs": 4250,
+    "timestampMs": 4030,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " inventar",
+    "startMs": 4390,
+    "endMs": 4746,
+    "timestampMs": 4568,
+    "confidence": null
+  },
+  {
+    "text": " uma",
+    "startMs": 4746,
+    "endMs": 4983,
+    "timestampMs": 4864,
+    "confidence": null
+  },
+  {
+    "text": " frase...",
+    "startMs": 4983,
+    "endMs": 5220,
+    "timestampMs": 5101,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " isso",
+    "startMs": 5380,
+    "endMs": 5920,
+    "timestampMs": 5650,
+    "confidence": null
+  },
+  {
+    "text": " leva",
+    "startMs": 6170,
+    "endMs": 6634,
+    "timestampMs": 6402,
+    "confidence": null
+  },
+  {
+    "text": " minutos.",
+    "startMs": 6634,
+    "endMs": 7330,
+    "timestampMs": 6982,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " Com",
+    "startMs": 7610,
+    "endMs": 7762,
+    "timestampMs": 7686,
+    "confidence": null
+  },
+  {
+    "text": " o",
+    "startMs": 7762,
+    "endMs": 7915,
+    "timestampMs": 7839,
+    "confidence": null
+  },
+  {
+    "text": " Gerador",
+    "startMs": 7915,
+    "endMs": 8372,
+    "timestampMs": 8144,
+    "confidence": null
+  },
+  {
+    "text": " de",
+    "startMs": 8372,
+    "endMs": 8525,
+    "timestampMs": 8449,
+    "confidence": null
+  },
+  {
+    "text": " Post,",
+    "startMs": 8525,
+    "endMs": 8678,
+    "timestampMs": 8601,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " você",
+    "startMs": 8678,
+    "endMs": 8982,
+    "timestampMs": 8830,
+    "confidence": null
+  },
+  {
+    "text": " só",
+    "startMs": 8982,
+    "endMs": 9135,
+    "timestampMs": 9059,
+    "confidence": null
+  },
+  {
+    "text": " cola",
+    "startMs": 9135,
+    "endMs": 9440,
+    "timestampMs": 9288,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " o",
+    "startMs": 9440,
+    "endMs": 9592,
+    "timestampMs": 9516,
+    "confidence": null
+  },
+  {
+    "text": " link",
+    "startMs": 9592,
+    "endMs": 9745,
+    "timestampMs": 9669,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " do",
+    "startMs": 9745,
+    "endMs": 9897,
+    "timestampMs": 9821,
+    "confidence": null
+  },
+  {
+    "text": " Mercado",
+    "startMs": 9897,
+    "endMs": 10355,
+    "timestampMs": 10126,
+    "confidence": null
+  },
+  {
+    "text": " Livre",
+    "startMs": 10355,
+    "endMs": 10660,
+    "timestampMs": 10507,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " ou",
+    "startMs": 10660,
+    "endMs": 10812,
+    "timestampMs": 10736,
+    "confidence": null
+  },
+  {
+    "text": " da",
+    "startMs": 10812,
+    "endMs": 10965,
+    "timestampMs": 10889,
+    "confidence": null
+  },
+  {
+    "text": " Shopee...",
+    "startMs": 10965,
+    "endMs": 11270,
+    "timestampMs": 11117,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " e",
+    "startMs": 11440,
+    "endMs": 11548,
+    "timestampMs": 11494,
+    "confidence": null
+  },
+  {
+    "text": " recebe",
+    "startMs": 11548,
+    "endMs": 11870,
+    "timestampMs": 11709,
+    "confidence": null
+  },
+  {
+    "text": " foto,",
+    "startMs": 12030,
+    "endMs": 12292,
+    "timestampMs": 12161,
+    "confidence": null
+  },
+  {
+    "text": " preços",
+    "startMs": 12292,
+    "endMs": 12554,
+    "timestampMs": 12423,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " e",
+    "startMs": 12554,
+    "endMs": 12686,
+    "timestampMs": 12620,
+    "confidence": null
+  },
+  {
+    "text": " uma",
+    "startMs": 12686,
+    "endMs": 12948,
+    "timestampMs": 12817,
+    "confidence": null
+  },
+  {
+    "text": " frase",
+    "startMs": 12948,
+    "endMs": 13210,
+    "timestampMs": 13079,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " criada",
+    "startMs": 13270,
+    "endMs": 13860,
+    "timestampMs": 13565,
+    "confidence": null
+  },
+  {
+    "text": " por",
+    "startMs": 13860,
+    "endMs": 14155,
+    "timestampMs": 14008,
+    "confidence": null
+  },
+  {
+    "text": " IA,",
+    "startMs": 14155,
+    "endMs": 14450,
+    "timestampMs": 14302,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " prontos",
+    "startMs": 14550,
+    "endMs": 14900,
+    "timestampMs": 14725,
+    "confidence": null
+  },
+  {
+    "text": " pro",
+    "startMs": 14900,
+    "endMs": 15075,
+    "timestampMs": 14988,
+    "confidence": null
+  },
+  {
+    "text": " seu",
+    "startMs": 15075,
+    "endMs": 15250,
+    "timestampMs": 15162,
+    "confidence": null
+  },
+  {
+    "text": " canal.",
+    "startMs": 15250,
+    "endMs": 15600,
+    "timestampMs": 15425,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " Quer",
+    "startMs": 15930,
+    "endMs": 16080,
+    "timestampMs": 16005,
+    "confidence": null
+  },
+  {
+    "text": " o",
+    "startMs": 16080,
+    "endMs": 16230,
+    "timestampMs": 16155,
+    "confidence": null
+  },
+  {
+    "text": " link?",
+    "startMs": 16230,
+    "endMs": 16380,
+    "timestampMs": 16305,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " Comenta",
+    "startMs": 16690,
+    "endMs": 17084,
+    "timestampMs": 16887,
+    "confidence": null
+  },
+  {
+    "text": " GERAR",
+    "startMs": 17084,
+    "endMs": 17347,
+    "timestampMs": 17215,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " aqui",
+    "startMs": 17347,
+    "endMs": 17609,
+    "timestampMs": 17478,
+    "confidence": null
+  },
+  {
+    "text": " embaixo,",
+    "startMs": 17609,
+    "endMs": 18003,
+    "timestampMs": 17806,
+    "confidence": null,
+    "pageBreakAfter": true
+  },
+  {
+    "text": " que",
+    "startMs": 18003,
+    "endMs": 18135,
+    "timestampMs": 18069,
+    "confidence": null
+  },
+  {
+    "text": " eu",
+    "startMs": 18135,
+    "endMs": 18266,
+    "timestampMs": 18200,
+    "confidence": null
+  },
+  {
+    "text": " te",
+    "startMs": 18266,
+    "endMs": 18397,
+    "timestampMs": 18332,
+    "confidence": null
+  },
+  {
+    "text": " mando!",
+    "startMs": 18397,
+    "endMs": 18660,
+    "timestampMs": 18529,
+    "confidence": null,
+    "pageBreakAfter": true
+  }
+]

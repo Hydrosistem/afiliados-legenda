@@ -1,5 +1,5 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion';
-import { COR, Fundo, Legenda, fontFamily } from '../comum';
+import { COR, Fundo, fontFamily } from '../comum';
 
 const TAREFAS = ['Copiar o título', 'Calcular o desconto', 'Inventar uma frase', 'Formatar o texto'];
 
@@ -71,7 +71,6 @@ export const Dor: React.FC = () => {
           </div>
         </div>
       </AbsoluteFill>
-      <Legenda texto="Copiar título, calcular desconto, inventar uma frase… isso leva minutos." />
     </AbsoluteFill>
   );
 };

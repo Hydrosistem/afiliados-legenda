@@ -1,5 +1,5 @@
 import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
-import { COR, Fundo, Legenda, OURO_TEXTO, fontFamily } from '../comum';
+import { COR, Fundo, OURO_TEXTO, fontFamily } from '../comum';
 
 // Cena 6 — chamada: "Comente GERAR", comentário sendo digitado e seta pulsando para baixo.
 export const Comente: React.FC = () => {
@@ -111,7 +111,6 @@ export const Comente: React.FC = () => {
           <span style={{ fontSize: 44, fontWeight: 800, color: COR.texto }}>Gerador de Post</span>
         </div>
       </AbsoluteFill>
-      <Legenda texto="Quer o link? Comenta GERAR aqui embaixo que eu te mando!" />
     </AbsoluteFill>
   );
 };

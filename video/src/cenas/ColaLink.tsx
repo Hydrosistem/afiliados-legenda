@@ -1,5 +1,5 @@
 import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
-import { COR, Celular, Fundo, Legenda, OURO_TEXTO, fontFamily } from '../comum';
+import { COR, Celular, Fundo, OURO_TEXTO, fontFamily } from '../comum';
 
 // Cena 3 — a solução: logo do Gerador, celular com o link colado e o toque em "Gerar".
 export const ColaLink: React.FC = () => {
@@ -93,7 +93,6 @@ export const ColaLink: React.FC = () => {
           <span>Shopee</span>
         </div>
       </AbsoluteFill>
-      <Legenda texto="Com o Gerador de Post, você só cola o link do Mercado Livre ou da Shopee…" />
     </AbsoluteFill>
   );
 };

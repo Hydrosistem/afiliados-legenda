@@ -7,6 +7,7 @@ import { ColaLink } from './cenas/ColaLink';
 import { Resultado } from './cenas/Resultado';
 import { Comente } from './cenas/Comente';
 import { Sons } from './Sons';
+import { LegendaAnimada } from './LegendaAnimada';
 
 export const CENAS: Record<string, React.FC> = {
   gancho: Gancho,
@@ -32,6 +33,7 @@ export const Anuncio: React.FC = () => {
         })}
       </Series>
       <Audio src={staticFile(NARRACAO)} />
+      <LegendaAnimada />
       <Sons />
     </AbsoluteFill>
   );

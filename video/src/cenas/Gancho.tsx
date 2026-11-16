@@ -1,5 +1,5 @@
 import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame } from 'remotion';
-import { COR, Fundo, Legenda, OURO_TEXTO, fontFamily } from '../comum';
+import { COR, Fundo, OURO_TEXTO, fontFamily } from '../comum';
 
 // Cena 1 — gancho: pergunta gigante, "na mão?" tremendo.
 // Tudo já aparece completo no quadro 0: é ele que o feed mostra antes de o vídeo tocar.
@@ -67,7 +67,6 @@ export const Gancho: React.FC = () => {
           na mão?
         </Interactive.Div>
       </AbsoluteFill>
-      <Legenda texto="Você ainda monta post de oferta na mão?" jaVisivel />
     </AbsoluteFill>
   );
 };

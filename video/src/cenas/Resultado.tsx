@@ -1,5 +1,5 @@
 import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
-import { COR, Fundo, Legenda, OURO_TEXTO, fontFamily } from '../comum';
+import { COR, Fundo, OURO_TEXTO, fontFamily } from '../comum';
 
 const ITENS = [
   { emoji: '🖼️', texto: 'Foto' },
@@ -101,7 +101,6 @@ export const Resultado: React.FC = () => {
           <span style={OURO_TEXTO}>seu canal</span>
         </div>
       </AbsoluteFill>
-      <Legenda texto="…e recebe foto, preços e uma frase criada por IA, prontos pro seu canal." />
     </AbsoluteFill>
   );
 };

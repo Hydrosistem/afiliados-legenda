@@ -1,4 +1,4 @@
-import { AbsoluteFill, Easing, Interactive, interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
 import { loadFont } from '@remotion/google-fonts/Inter';
 
 export const { fontFamily } = loadFont('normal', { weights: ['500', '700', '800', '900'], subsets: ['latin'] });
@@ -38,41 +38,6 @@ export const Fundo: React.FC = () => {
       <AbsoluteFill
         style={{ background: 'radial-gradient(60% 35% at 10% 100%, rgba(255,196,0,.10) 0%, rgba(13,13,15,0) 70%)' }}
       />
-    </AbsoluteFill>
-  );
-};
-
-// Legenda da narração, na parte de baixo (muita gente assiste sem som).
-// `jaVisivel`: sem animação de entrada (usada no 1º quadro do vídeo, que vira a capa no feed).
-export const Legenda: React.FC<{ texto: string; jaVisivel?: boolean }> = ({ texto, jaVisivel = false }) => {
-  const quadro = useCurrentFrame();
-  const frame = jaVisivel ? 1000 : quadro;
-  return (
-    <AbsoluteFill style={{ justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 170 }}>
-      <Interactive.Div
-        name="Legenda"
-        style={{
-          maxWidth: 900,
-          padding: '22px 34px',
-          borderRadius: 28,
-          backgroundColor: 'rgba(0,0,0,.72)',
-          border: '1px solid rgba(255,255,255,.08)',
-          color: COR.texto,
-          fontFamily,
-          fontWeight: 700,
-          fontSize: 44,
-          lineHeight: 1.25,
-          textAlign: 'center',
-          opacity: interpolate(frame, [0, 8], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
-          translate: interpolate(frame, [0, 10], ['0px 20px', '0px 0px'], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      >
-        {texto}
-      </Interactive.Div>
     </AbsoluteFill>
   );
 };
